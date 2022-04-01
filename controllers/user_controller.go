@@ -14,11 +14,6 @@ func GetAllUser(c *gin.Context) {
 	defer db.Close()
 }
 
-func Register(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-}
-
 func UpdateUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
@@ -27,4 +22,17 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+}
+
+func Register(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
+func Login(c *gin.Context) {
+
+}
+
+func Logout(c *gin.Context) {
+
 }

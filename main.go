@@ -10,10 +10,12 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/user", c.GetAllUser)
-	router.GET("/user/{user_id}", c.GetUser)
-	router.POST("/user/register", c.Register)
-	router.PUT("/user/update/{user_id}", c.UpdateUser)
-	router.DELETE("/user/delete/{user_id}", c.DeleteUser)
+	router.GET("/user/", c.GetUser)
+	router.POST("/register", c.Register)
+	router.POST("/login", c.Login)
+	router.POST("/logout", c.Logout)
+	router.PUT("/user/update/", c.UpdateUser)
+	router.DELETE("/user/delete/", c.DeleteUser)
 
 	router.Run("localhost:8080")
 }
