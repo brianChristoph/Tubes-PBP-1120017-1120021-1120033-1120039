@@ -1,6 +1,8 @@
 package main
 
 import (
+	api_tools "github.com/Tubes-PBP/api-tools"
+	// controllers
 	c "github.com/Tubes-PBP/controllers"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +10,8 @@ import (
 
 func main() {
 	router := gin.Default()
+
+	go api_tools.RunBackgroundFunc()
 
 	router.GET("/user", c.GetAllUser)
 	router.GET("/user/", c.GetUser)
