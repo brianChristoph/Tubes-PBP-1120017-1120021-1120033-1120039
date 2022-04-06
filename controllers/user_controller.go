@@ -1,14 +1,46 @@
 package controllers
 
 import (
-	// m "github.com/Tubes-PBP/models"
+	"log"
+
+	m "github.com/Tubes-PBP/models"
 	"github.com/gin-gonic/gin"
 )
 
 func GetUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
-	
+
+	email := c.Query("email")
+	query := "SELECT * FROM user"
+
+	if email != "" {
+		query += " WHERE email ='" + email + "'"
+	}
+
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var user m.User
+	var users []m.User
+	for rows.Next() {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.UserType, &user.Balance, &user.LastSeen); err != nil {
+			log.Print(err.Error())
+		} else {
+			users = append(users, user)
+		}
+	}
+	// var response UsersResponse
+	// if len(users) != 0 {
+	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
+	// 	response.Data = users
+	// 	sendSuccessResponse(c, response)
+	// } else {
+	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
+	// 	sendErrorResponse(c, response)
+	// }
 }
 
 func GetAllUser(c *gin.Context) {
