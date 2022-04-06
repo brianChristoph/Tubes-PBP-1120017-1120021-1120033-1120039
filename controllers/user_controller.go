@@ -11,6 +11,7 @@ import (
 func GetUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+	
 }
 
 func GetAllUser(c *gin.Context) {
