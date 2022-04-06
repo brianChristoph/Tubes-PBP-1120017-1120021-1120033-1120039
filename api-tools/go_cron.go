@@ -12,6 +12,6 @@ func RunBackgroundFunc() {
 	// Everyday run func routine
 	cron.Every(1).Day().Do(Routine)
 
-	cron.StartAsync()
-	cron.StartBlocking()
+	// cron.StartAsync()
+	// cron.StartBlocking()
 }

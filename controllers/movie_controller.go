@@ -31,12 +31,47 @@ func ShowStreamingList(c *gin.Context) {
 func StreamingMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	idStream := c.Query("ID_Stream")
+
+	row := db.QueryRow("SELECT m.movie_name, m.synopsis, sm.movie_path FROM movies m JOIN streaming_movies sm ON m.id = sm.movie_id WHERE sm.id=?", idStream)
+
+	var movieStream m.StreamingMovie
+	if err := row.Scan(&movieStream.MovieName, &movieStream.Synopsis, &movieStream.MoviePath); err != nil {
+		panic(err.Error())
+	} else {
+		c.IndentedJSON(http.StatusOK, movieStream)
+	}
 }
 
 //MOVIES
 func TheaterList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	query := ("SELECT * FROM theaters")
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	var theater m.Theater
+	var theaters []m.Theater
+
+	for rows.Next() {
+		err = rows.Scan(&theater.ID, &theater.TheaterName, &theater.LocationID, &theater.Price)
+		if err != nil {
+			panic(err.Error())
+		}
+		theaters = append(theaters, theater)
+	}
+
+	if len(theaters) != 0 {
+		c.IndentedJSON(http.StatusCreated, theaters)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 func ViewMovieDescription(c *gin.Context) {
