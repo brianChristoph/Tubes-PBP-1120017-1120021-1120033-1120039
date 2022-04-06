@@ -25,17 +25,29 @@ func DeleteUser(c *gin.Context) {
 	defer db.Close()
 }
 
+func Login(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
 func Register(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
 
-func Login(c *gin.Context) {
-
+func Logout(c *gin.Context) {
+	db := connect()
+	defer db.Close()
 }
 
-func Logout(c *gin.Context) {
+func UserProfile(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
 
+func BuyVIP(c *gin.Context) {
+	db := connect()
+	defer db.Close()
 }
 
 // Background Function
