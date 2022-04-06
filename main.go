@@ -6,6 +6,7 @@ import (
 	c "github.com/Tubes-PBP/controllers"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -14,8 +15,8 @@ func main() {
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
-	router.GET("/user", c.GetAllUser)
-	router.GET("/user", c.GetUser)
+	router.GET("/user/GetAllUser", c.GetAllUser)
+	router.GET("/user/GetUser", c.GetUser)
 	router.DELETE("/user/delete", c.DeleteUser)//Delete User
 
 	//USER
