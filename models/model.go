@@ -57,7 +57,7 @@ type Detail_Transaction struct {
 	ID             int `json:"id"`
 	Transaction_id int `json:"transaction_id"`
 	Seat_id        int `json:"seat_id"`
-	ms_id          int `json:"ms_id"`
+	Ms_id          int `json:"ms_id"`
 }
 
 type Theater struct {
