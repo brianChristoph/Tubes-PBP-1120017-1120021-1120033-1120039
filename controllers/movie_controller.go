@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	m "github.com/Tubes-PBP/models"
 )
 
 func DeleteMovieSchedulePeriodically() {
@@ -44,6 +47,30 @@ func ViewMovieDescription(c *gin.Context) {
 func ShowMovieList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	query := ("SELECT id,movie_name,thumbnail_path FROM movies")
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	var movie m.Movie
+	var movies []m.Movie
+
+	for rows.Next() {
+		err = rows.Scan(&movie.ID, &movie.Movie_name, &movie.Thumbnail_path)
+		if err != nil {
+			panic(err.Error())
+		}
+		movies = append(movies, movie)
+	}
+
+	if len(movies) != 0 {
+		c.IndentedJSON(http.StatusOK, movies)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 func ShowTheaterForCertainMovie(c *gin.Context) {

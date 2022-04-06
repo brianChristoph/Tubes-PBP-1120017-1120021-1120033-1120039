@@ -17,16 +17,17 @@ type User struct {
 	Balance  int       `json:"balance"`
 	LastSeen time.Time `json:"last_seen"`
 }
-type Users struct {
-}
 
-// movie related
 type Movie struct {
-}
-type Movies struct {
+	ID             int       `json:"id"`
+	Movie_name     string    `json:"movie name"`
+	Thumbnail_path string    `json:"thumbnail_path"`
+	Synopsis       string    `json:"synopsis"`
+	Last_premier   time.Time `json:"last premier"`
+	Streamable     int       `json:"streamable"` // 1= can be stream, 0 = cant be stream
 }
 
-type MovieSchedule struct {
+type Movie_Schedule struct {
 	ID          int       `json:"id"`
 	MovieID     int       `json:"movie_id"`
 	StudioID    int       `json:"studio_id"`
@@ -34,12 +35,37 @@ type MovieSchedule struct {
 }
 
 type Studio struct {
+	ID          int    `json:"id"`
+	Studio_name string `json:"studio_id"`
+	Theatre_id  int    `json:"theatre_id"`
+	Status      int    `json:"status"`
+	Quantity    int    `json:"quantity"` //seat quantity in studio
 }
 
 type Seat struct {
+	ID         int    `json:"id"`
+	Seats_name string `json:"seats_name"`
 }
 
-// transaction
+type Transaction struct {
+	ID               int       `json:"id"`
+	Person_id        int       `json:"person_id"`
+	Transaction_date time.Time `json:"transaction_date"`
+}
+
+type Detail_Transaction struct {
+	ID             int `json:"id"`
+	Transaction_id int `json:"transaction_id"`
+	Seat_id        int `json:"seat_id"`
+	ms_id          int `json:"ms_id"`
+}
+
+type Theater struct {
+	ID          int    `json:"id"`
+	TheaterName string `json:"theatre_name"`
+	LocationID  int    `json:"location_id"`
+	Price       int    `json:"price"`
+}
 
 // response
 
