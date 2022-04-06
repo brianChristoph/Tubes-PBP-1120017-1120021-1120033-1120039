@@ -66,7 +66,3 @@ type Theater struct {
 	LocationID  int    `json:"location_id"`
 	Price       int    `json:"price"`
 }
-
-// response
-
-// nanti dipertimbangkan dengan klmpk
