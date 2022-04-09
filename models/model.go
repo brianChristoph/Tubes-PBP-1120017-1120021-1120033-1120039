@@ -66,3 +66,9 @@ type Theater struct {
 	LocationID  int    `json:"location_id"`
 	Price       int    `json:"price"`
 }
+
+type StreamingMovie struct {
+	MovieName string `json:"movie_name"`
+	Synopsis  string `json:"synopsis"`
+	MoviePath string `json:"movie_path"`
+}
