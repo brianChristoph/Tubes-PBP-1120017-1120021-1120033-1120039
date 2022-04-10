@@ -41,7 +41,6 @@ func main() {
 	router.GET("/movies/list", c.ShowMovieList)                            //Show Movie List
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)        //Show Available Theater for Certain Movie
 	router.GET("/movies/changePrice", c.ChangePrice)                       //Change Price
-	router.GET("/movies/changeMovieDescription", c.UpdateMovieDescription) //Update movie description
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
