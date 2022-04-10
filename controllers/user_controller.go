@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	// "strconv"
+
 	"fmt"
 	"log"
 	"time"
@@ -13,6 +15,21 @@ import (
 )
 
 func GetUser(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+
+	// var response UsersResponse
+	// if len(users) != 0 {
+	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
+	// 	response.Data = users
+	// 	sendSuccessResponse(c, response)
+	// } else {
+	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
+	// 	sendErrorResponse(c, response)
+	// }
+}
+
+func GetAllUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
@@ -37,25 +54,54 @@ func GetUser(c *gin.Context) {
 			users = append(users, user)
 		}
 	}
-	// var response UsersResponse
-	// if len(users) != 0 {
-	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
-	// 	response.Data = users
-	// 	sendSuccessResponse(c, response)
-	// } else {
-	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
-	// 	sendErrorResponse(c, response)
-	// }
-}
-
-func GetAllUser(c *gin.Context) {
-	db := connect()
-	defer db.Close()
 }
 
 func UpdateUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	// name := c.PostForm("name")
+	// password := c.PostForm("password")
+	// email := c.PostForm("email")
+	// isAccessTokenValid, userId, email, userType := validateTokenFromCookies(c)
+	// fmt.Print(email, userType, isAccessTokenValid)
+
+	// rows, _ := db.Query("SELECT * FROM persons WHERE id='" + strconv.Itoa(userId) + "'")
+	// var user m.User
+	// for rows.Next() {
+	// 	if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
+	// 		log.Print(err.Error())
+	// 	}
+	// }
+
+	// Jika kosong dimasukkan nilai lama
+	// if name == "" {
+	// 	name = user.Name
+	// }
+
+	// if password == "" {
+	// 	password = user.Password
+	// }
+
+	// if email == "" {
+	// 	email = user.Email
+	// }
+
+	// _, errQuery := db.Exec("UPDATE persons SET name = ?, password = ?, email = ? WHERE id=?",
+	// 	name,
+	// 	password,
+	// 	email,
+	// 	userId,
+	// )
+
+	// var response UserResponse
+	// if errQuery == nil {
+	// 	response.Message = "Berhasil Memperbaharui Data Pengguna"
+	// 	sendSuccessResponse(c, response)
+	// } else {
+	// 	response.Message = "Gagal Memperbaharui Data Pengguna"
+	// 	sendErrorResponse(c, response)
+	// }
 }
 
 func DeleteUser(c *gin.Context) {
@@ -66,6 +112,7 @@ func DeleteUser(c *gin.Context) {
 func UserProfile(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
 }
 
 func BuyVIP(c *gin.Context) {
