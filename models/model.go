@@ -67,6 +67,8 @@ type Theater struct {
 	Price       int    `json:"price"`
 }
 
-// response
-
-// nanti dipertimbangkan dengan klmpk
+type StreamingMovie struct {
+	MovieName string `json:"movie_name"`
+	Synopsis  string `json:"synopsis"`
+	MoviePath string `json:"movie_path"`
+}
