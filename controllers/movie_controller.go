@@ -12,7 +12,7 @@ func DeleteMovieSchedulePeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("")
+	result, errQuery := db.Exec("DELETE FROM movie_schedules")
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {

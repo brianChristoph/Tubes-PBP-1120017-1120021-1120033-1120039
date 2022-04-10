@@ -11,9 +11,9 @@ import "time"
 type User struct {
 	ID       int       `json:"id"`
 	Name     string    `json:"name"`
-	Password string    `json:"password"`
-	Email    string    `json:"email"`
-	UserType int       `json:"user_type"`
+	Password string    `form:"password" json:"password"`
+	Email    string    `form:"email" json:"email"`
+	UserType string    `json:"user_type"`
 	Balance  int       `json:"balance"`
 	LastSeen time.Time `json:"last_seen"`
 }
