@@ -128,7 +128,7 @@ func Login(c *gin.Context) {
 	var loginService s.LoginService = s.StaticLoginService(user.Email, user.Password)
 	var jwtService s.JWTService = s.JWTAuthService(user.Name)
 	var loginController LoginController = LoginHandler(loginService, jwtService)
-	token := loginController.Login(c)
+	token := loginController.Login(c, user)
 	if token != "" {
 		c.JSON(http.StatusOK, gin.H{
 			"token": token,
