@@ -64,24 +64,24 @@ func UpdateUser(c *gin.Context) {
 	fmt.Print(email, userType, isAccessTokenValid)
 
 	rows, _ := db.Query("SELECT * FROM persons WHERE id='" + strconv.Itoa(userId) + "'")
-	var user User
+	var user m.User
 	for rows.Next() {
-		if err := rows.Scan(&user.Id, &user.Nama, &user.Email, &user.Password, &user.JenisKelamin, &user.TanggalLahir, &user.Kewarganegaraan, &user.TipeUser, &user.Status); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
 			log.Print(err.Error())
 		}
 	}
 
 	// Jika kosong dimasukkan nilai lama
 	if name == "" {
-		name = user.name
+		name = user.Name
 	}
 
 	if password == "" {
-		password = user.password
+		password = user.Password
 	}
 
 	if email == "" {
-		email = user.email
+		email = user.Email
 	}
 
 	// _, errQuery := db.Exec("UPDATE persons SET name = ?, password = ?, email = ? WHERE id=?",
