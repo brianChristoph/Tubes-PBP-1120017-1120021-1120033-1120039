@@ -63,7 +63,7 @@ func UpdateUser(c *gin.Context) {
 	isAccessTokenValid, userId, email, userType := validateTokenFromCookies(c)
 	fmt.Print(email, userType, isAccessTokenValid)
 
-	rows, _ := db.Query("SELECT * FROM user WHERE id='" + strconv.Itoa(userId) + "'")
+	rows, _ := db.Query("SELECT * FROM persons WHERE id='" + strconv.Itoa(userId) + "'")
 	var user User
 	for rows.Next() {
 		if err := rows.Scan(&user.Id, &user.Nama, &user.Email, &user.Password, &user.JenisKelamin, &user.TanggalLahir, &user.Kewarganegaraan, &user.TipeUser, &user.Status); err != nil {
@@ -84,12 +84,21 @@ func UpdateUser(c *gin.Context) {
 		email = user.email
 	}
 
-	_, errQuery := db.Exec("UPDATE user SET name = ?, password = ?, email = ? WHERE id=?",
-		name,
-		password,
-		email,
-		userId,
-	)
+	// _, errQuery := db.Exec("UPDATE persons SET name = ?, password = ?, email = ? WHERE id=?",
+	// 	name,
+	// 	password,
+	// 	email,
+	// 	userId,
+	// )
+
+	// var response UserResponse
+	// if errQuery == nil {
+	// 	response.Message = "Berhasil Memperbaharui Data Pengguna"
+	// 	sendSuccessResponse(c, response)
+	// } else {
+	// 	response.Message = "Gagal Memperbaharui Data Pengguna"
+	// 	sendErrorResponse(c, response)
+	// }
 }
 
 func DeleteUser(c *gin.Context) {
