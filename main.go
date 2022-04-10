@@ -17,9 +17,9 @@ func main() {
 	//ADMIN
 	router.GET("/user", c.GetAllUser)//View ALl User
 	router.DELETE("/user", c.DeleteUser)//Delete User
-	router.GET("/movies", c.GetAllUser)//View ALl Movie
 	router.POST("/movies", c.Register)//Add Movie
 	router.PUT("/movies", c.Register)//Update Movie
+	router.GET("/streaming", c.UpdateStreaming)//Update Streaming
 
 	//USER
 	router.GET("/user/login", c.Login)//Login
@@ -34,7 +34,6 @@ func main() {
 
 	// Pakai query params
 	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
-
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                            //Theater List

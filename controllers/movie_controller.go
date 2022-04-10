@@ -23,6 +23,11 @@ func DeleteMovieSchedulePeriodically() {
 }
 
 //STREAMING
+func UpdateStreaming(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
 func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
@@ -126,11 +131,6 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 }
 
 func ChangePrice(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-}
-
-func UpdateMovieDescription(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
