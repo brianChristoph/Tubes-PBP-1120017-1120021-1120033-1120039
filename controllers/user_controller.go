@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"strconv"
 
 	"fmt"
 	"net/http"
@@ -11,6 +12,21 @@ import (
 )
 
 func GetUser(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+
+	// var response UsersResponse
+	// if len(users) != 0 {
+	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
+	// 	response.Data = users
+	// 	sendSuccessResponse(c, response)
+	// } else {
+	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
+	// 	sendErrorResponse(c, response)
+	// }
+}
+
+func GetAllUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
@@ -35,25 +51,45 @@ func GetUser(c *gin.Context) {
 			users = append(users, user)
 		}
 	}
-	// var response UsersResponse
-	// if len(users) != 0 {
-	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
-	// 	response.Data = users
-	// 	sendSuccessResponse(c, response)
-	// } else {
-	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
-	// 	sendErrorResponse(c, response)
-	// }
-}
-
-func GetAllUser(c *gin.Context) {
-	db := connect()
-	defer db.Close()
 }
 
 func UpdateUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	name := c.PostForm("name")
+	password := c.PostForm("password")
+	email := c.PostForm("email")
+	isAccessTokenValid, userId, email, userType := validateTokenFromCookies(c)
+	fmt.Print(email, userType, isAccessTokenValid)
+
+	rows, _ := db.Query("SELECT * FROM user WHERE id='" + strconv.Itoa(userId) + "'")
+	var user User
+	for rows.Next() {
+		if err := rows.Scan(&user.Id, &user.Nama, &user.Email, &user.Password, &user.JenisKelamin, &user.TanggalLahir, &user.Kewarganegaraan, &user.TipeUser, &user.Status); err != nil {
+			log.Print(err.Error())
+		}
+	}
+
+	// Jika kosong dimasukkan nilai lama
+	if name == "" {
+		name = user.name
+	}
+
+	if password == "" {
+		password = user.password
+	}
+
+	if email == "" {
+		email = user.email
+	}
+
+	_, errQuery := db.Exec("UPDATE user SET name = ?, password = ?, email = ? WHERE id=?",
+		name,
+		password,
+		email,
+		userId,
+	)
 }
 
 func DeleteUser(c *gin.Context) {
@@ -64,6 +100,7 @@ func DeleteUser(c *gin.Context) {
 func UserProfile(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
 }
 
 func BuyVIP(c *gin.Context) {
