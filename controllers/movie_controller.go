@@ -12,7 +12,7 @@ func DeleteMovieSchedulePeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("")
+	result, errQuery := db.Exec("DELETE FROM movie_schedules")
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
@@ -23,6 +23,11 @@ func DeleteMovieSchedulePeriodically() {
 }
 
 //STREAMING
+func UpdateStreaming(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
 func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
@@ -77,6 +82,18 @@ func TheaterList(c *gin.Context) {
 func ViewMovieDescription(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	idMovie := c.Query("ID_Movie")
+
+	//Get Movie Data
+	rows := db.QueryRow("SELECT * FROM movies WHERE id = ?", idMovie)
+
+	var movie m.Movie
+	if err := rows.Scan(&movie.ID, &movie.Movie_name, &movie.Thumbnail_path, &movie.Synopsis, &movie.Last_premier, &movie.Streamable); err != nil {
+		panic(err.Error())
+	} else {
+		c.IndentedJSON(http.StatusOK, movie)
+	}
 }
 
 func ShowMovieList(c *gin.Context) {
@@ -114,11 +131,6 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 }
 
 func ChangePrice(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-}
-
-func UpdateMovieDescription(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
