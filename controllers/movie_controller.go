@@ -42,6 +42,18 @@ func TheaterList(c *gin.Context) {
 func ViewMovieDescription(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	idMovie := c.Query("ID_Movie")
+
+	//Get Movie Data
+	rows := db.QueryRow("SELECT * FROM movies WHERE id = ?", idMovie)
+
+	var movie m.Movie
+	if err := rows.Scan(&movie.ID, &movie.Movie_name, &movie.Thumbnail_path, &movie.Synopsis, &movie.Last_premier, &movie.Streamable); err != nil {
+		panic(err.Error())
+	} else {
+		c.IndentedJSON(http.StatusOK, movie)
+	}
 }
 
 func ShowMovieList(c *gin.Context) {
