@@ -17,8 +17,8 @@ func main() {
 	//ADMIN
 	router.GET("/user", c.GetAllUser)//View ALl User
 	router.DELETE("/user", c.DeleteUser)//Delete User
-	router.POST("/movies", c.Register)//Add Movie
-	router.PUT("/movies", c.Register)//Update Movie
+	router.POST("/movies", c.AddMovie)//Add Movie
+	router.PUT("/movies", c.UpdateMovie)//Update Movie
 	router.GET("/streaming", c.UpdateStreaming)//Update Streaming
 
 	//USER
@@ -30,21 +30,19 @@ func main() {
 	router.GET("/user/transaction/buyVIP", c.BuyVIP)//Buy VIP
 
 	//STREAMING
-	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
-
-	// Pakai query params
-	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
+	router.GET("/streaming_movies/list", c.ShowStreamingList)//Show Streaming List
+	router.GET("/streaming_movies/stream", c.StreamingMovie)//Streaming Movie
 
 	//MOVIES
-	router.GET("/theaters/list", c.TheaterList)                            //Theater List
-	router.GET("/movies/description", c.ViewMovieDescription)              //View Movie Description
-	router.GET("/movies/list", c.ShowMovieList)                            //Show Movie List
-	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)        //Show Available Theater for Certain Movie
-	router.GET("/movies/changePrice", c.ChangePrice)                       //Change Price
+	router.GET("/theaters/list", c.TheaterList)//Theater List
+	router.GET("/movies/description", c.ViewMovieDescription)//View Movie Description
+	router.GET("/movies/list", c.ShowMovieList)//Show Movie List
+	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)//Show Available Theater for Certain Movie
+	router.GET("/movies/changePrice", c.ChangePrice)//Change Price
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
-	router.GET("/theaters/studios/seats", c.BookingSeat)         //Pemesanan Kursi
+	router.GET("/theaters/studios/seats", c.BookingSeat)//Pemesanan Kursi
 
 	router.Run("localhost:8080")
 }
