@@ -17,9 +17,9 @@ func main() {
 	//ADMIN
 	router.GET("/user", c.GetAllUser)//View ALl User
 	router.DELETE("/user", c.DeleteUser)//Delete User
-	router.GET("/movies", c.GetAllUser)//View ALl Movie
 	router.POST("/movies", c.Register)//Add Movie
 	router.PUT("/movies", c.Register)//Update Movie
+	router.GET("/streaming", c.UpdateStreaming)//Update Streaming
 
 	//USER
 	router.GET("/user/login", c.Login)//Login
@@ -36,10 +36,9 @@ func main() {
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)//Theater List
 	router.GET("/movies/description", c.ViewMovieDescription)//View Movie Description
-	router.GET("/movies/list", c.ShowMovieList)//Show Movie List
+	router.GET("/movies", c.ShowMovieList)//Show Movie List
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)//Show Available Theater for Certain Movie
-	router.GET("/movies/changePrice", c.ChangePrice)//Change Price
-	router.GET("/movies/changeMovieDescription", c.UpdateMovieDescription)//Update movie description
+	router.PUT("/movies/changePrice", c.ChangePrice)//Change Price
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket)//Transaction Buy Ticket
