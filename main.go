@@ -15,17 +15,19 @@ func main() {
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
-	router.GET("/user/GetAllUser", c.GetAllUser)
-	router.GET("/user/GetUser", c.GetUser)
-	router.DELETE("/user/delete", c.DeleteUser) //Delete User
+	router.GET("/user", c.GetAllUser)//View ALl User
+	router.DELETE("/user", c.DeleteUser)//Delete User
+	router.GET("/movies", c.GetAllUser)//View ALl Movie
+	router.POST("/movies", c.Register)//Add Movie
+	router.PUT("/movies", c.Register)//Update Movie
 
 	//USER
-	router.GET("/user/Login", c.Login)               //Login
-	router.POST("/user/register", c.Register)        //Register
-	router.PUT("/user/update", c.UpdateUser)         //Update User
-	router.GET("/user/logout", c.Logout)             //Logout
-	router.GET("/user/profile", c.UserProfile)       //User Profile
-	router.GET("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
+	router.GET("/user/login", c.Login)//Login
+	router.POST("/user", c.Register)//Register
+	router.PUT("/user", c.UpdateUser)//Update User
+	router.GET("/user/logout", c.Logout)//Logout
+	router.GET("/user/profile", c.UserProfile)//User Profile
+	router.GET("/user/transaction/buyVIP", c.BuyVIP)//Buy VIP
 
 	//STREAMING
 	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
