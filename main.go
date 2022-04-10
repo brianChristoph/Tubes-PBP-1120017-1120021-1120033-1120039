@@ -30,8 +30,10 @@ func main() {
 	router.GET("/user/transaction/buyVIP", c.BuyVIP)//Buy VIP
 
 	//STREAMING
-	router.GET("/streaming_movies/list", c.ShowStreamingList)//Show Streaming List
-	router.POST("/streaming_movies/stream", c.StreamingMovie)//Streaming Movie
+	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
+
+	// Pakai query params
+	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)//Theater List
@@ -41,8 +43,8 @@ func main() {
 	router.PUT("/movies/changePrice", c.ChangePrice)//Change Price
 
 	//TRANSACTION
-	router.GET("/transaction/buyTicket", c.TransactionBuyTicket)//Transaction Buy Ticket
-	router.GET("/theaters/studios/seats", c.BookingSeat)//Pemesanan Kursi
-	
+	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
+	router.GET("/theaters/studios/seats", c.BookingSeat)         //Pemesanan Kursi
+
 	router.Run("localhost:8080")
 }
