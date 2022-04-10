@@ -1,12 +1,14 @@
 package controllers
 
 import (
-	"log"
-
 	"fmt"
+	"log"
+	"time"
+
 	"net/http"
 
 	m "github.com/Tubes-PBP/models"
+	s "github.com/Tubes-PBP/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -71,6 +73,7 @@ func BuyVIP(c *gin.Context) {
 	defer db.Close()
 }
 
+// General Function
 func Logout(c *gin.Context) {
 	db := connect()
 	defer db.Close()
@@ -101,17 +104,38 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	login, err := db.Query("SELECT * from persons WHERE password=? AND email=?", user.Password, user.Email)
+	row, err := db.Query("SELECT * from persons WHERE password=? AND email=?", user.Password, user.Email)
 
 	if err != nil {
-		panic(err.Error())
-	} else {
-		// redis
-		// ..
-		c.SetCookie("name", "Shimin Li", 1, "/", "localhost", false, true)
-		c.IndentedJSON(http.StatusOK, login)
+		c.IndentedJSON(http.StatusNotFound, err)
+		return
 	}
-	defer login.Close()
+
+	for row.Next() {
+		if errData := row.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Password,
+			&user.Email,
+			&user.UserType,
+			&user.Balance,
+			&user.LastSeen); errData != nil {
+			c.IndentedJSON(http.StatusNotFound, errData.Error())
+			return
+		}
+	}
+
+	var loginService s.LoginService = s.StaticLoginService(user.Email, user.Password)
+	var jwtService s.JWTService = s.JWTAuthService(user.Name)
+	var loginController LoginController = LoginHandler(loginService, jwtService)
+	token := loginController.Login(c)
+	if token != "" {
+		c.JSON(http.StatusOK, gin.H{
+			"token": token,
+		})
+	} else {
+		c.JSON(http.StatusUnauthorized, nil)
+	}
 }
 
 // Background Function
@@ -119,7 +143,7 @@ func DeleteUserPeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("")
+	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN'", time.Now().Format("YYYY-MM-DD"))
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {

@@ -20,7 +20,7 @@ func main() {
 	router.DELETE("/user/delete", c.DeleteUser) //Delete User
 
 	//USER
-	router.GET("/user/Login", c.Login)               //Login
+	router.POST("/user/login", c.Login)              //Login
 	router.POST("/user/register", c.Register)        //Register
 	router.PUT("/user/update", c.UpdateUser)         //Update User
 	router.GET("/user/logout", c.Logout)             //Logout
@@ -32,7 +32,6 @@ func main() {
 
 	// Pakai query params
 	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
-
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                            //Theater List
