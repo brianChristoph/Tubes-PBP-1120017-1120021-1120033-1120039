@@ -36,11 +36,12 @@ func main() {
 	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
 
 	//MOVIES
-	router.GET("/theaters/list", c.TheaterList)//Theater List
-	router.GET("/movies/description", c.ViewMovieDescription)//View Movie Description
-	router.GET("/movies", c.ShowMovieList)//Show Movie List
-	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)//Show Available Theater for Certain Movie
-	router.PUT("/movies/changePrice", c.ChangePrice)//Change Price
+	router.GET("/theaters/list", c.TheaterList)                            //Theater List
+	router.GET("/movies/description", c.ViewMovieDescription)              //View Movie Description
+	router.GET("/movies/list", c.ShowMovieList)                            //Show Movie List
+	router.GET("/theaters/available", c.ShowTheaterForCertainMovie)        //Show Available Theater for Certain Movie
+	router.GET("/movies/changePrice", c.ChangePrice)                       //Change Price
+	router.GET("/movies/changeMovieDescription", c.UpdateMovieDescription) //Update movie description
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
