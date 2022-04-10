@@ -72,3 +72,15 @@ type StreamingMovie struct {
 	Synopsis  string `json:"synopsis"`
 	MoviePath string `json:"movie_path"`
 }
+
+type TheatersCertainMovie struct {
+	MovieName     string             `json:"movie_name"`
+	ThumbnailPath string             `json:"thumbnail_path"`
+	DataTheaters  []MovieTheaterInfo `json:"data_theaters"`
+}
+
+type MovieTheaterInfo struct {
+	TheaterName     string      `json:"theater_name"`
+	Price           int         `json:"price"`
+	DataPlayingTime []time.Time `json:"data_playing_time"`
+}
