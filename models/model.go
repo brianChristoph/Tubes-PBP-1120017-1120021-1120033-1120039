@@ -84,3 +84,9 @@ type MovieTheaterInfo struct {
 	Price           int         `json:"price"`
 	DataPlayingTime []time.Time `json:"data_playing_time"`
 }
+
+type StreamingList struct {
+	ID        int    `json:"id"`
+	MovieId   string `json:"movie_id"`
+	MoviePath string `json:"movie_path"`
+}

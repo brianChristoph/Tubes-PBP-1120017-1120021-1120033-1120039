@@ -32,6 +32,30 @@ func UpdateStreaming(c *gin.Context) {
 func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	query := ("SELECT id,movie_id,movie_path FROM streaming_movies")
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	var streamingList m.StreamingList
+	var streamingLists []m.StreamingList
+
+	for rows.Next() {
+		err = rows.Scan(&streamingList.ID, &streamingList.MovieId, &streamingList.MoviePath)
+		if err != nil {
+			panic(err.Error())
+		}
+		streamingLists = append(streamingLists, streamingList)
+	}
+
+	if len(streamingLists) != 0 {
+		c.IndentedJSON(http.StatusCreated, streamingLists)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 func StreamingMovie(c *gin.Context) {
