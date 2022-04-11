@@ -24,7 +24,7 @@ func DeleteMovieSchedulePeriodically() {
 }
 
 //STREAMING
-func UpdateStreaming(c *gin.Context) {
+func UpdateStreamingMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
