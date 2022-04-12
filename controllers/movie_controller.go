@@ -201,8 +201,3 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, theatersCertainMovie)
 	}
 }
-
-func ChangePrice(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-}

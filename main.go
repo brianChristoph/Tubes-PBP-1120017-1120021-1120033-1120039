@@ -15,11 +15,11 @@ func main() {
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
-	router.GET("/user", c.GetAllUser)                //View ALl User
-	router.DELETE("/user", c.DeleteUser)             //Delete User
-	router.POST("/movies", c.Register)               //Add Movie
-	router.PUT("/movies", c.Register)                //Update Movie
-	router.GET("/streaming", c.UpdateStreamingMovie) //Update Streaming
+	router.GET("/admin/users", c.GetAllUser)               //View ALl User
+	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
+	router.POST("/admin/movies", c.Register)               //Add Movie
+	router.PUT("/admin/movies", c.Register)                //Update Movie
+	router.GET("/movie_streaming", c.UpdateStreamingMovie) //Update Streaming
 
 	//USER
 	router.POST("/user/login", c.Login)              //Login
@@ -40,7 +40,6 @@ func main() {
 	router.GET("/movies/description", c.ViewMovieDescription)       //View Movie Description
 	router.GET("/movies/list", c.ShowMovieList)                     //Show Movie List
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie) //Show Available Theater for Certain Movie
-	router.GET("/movies/changePrice", c.ChangePrice)                //Change Price
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
