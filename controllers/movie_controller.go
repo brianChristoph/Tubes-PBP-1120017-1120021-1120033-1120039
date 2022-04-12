@@ -24,7 +24,7 @@ func DeleteMovieSchedulePeriodically() {
 }
 
 //STREAMING
-func UpdateStreaming(c *gin.Context) {
+func UpdateStreamingMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
@@ -32,6 +32,30 @@ func UpdateStreaming(c *gin.Context) {
 func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	query := ("SELECT DISTINCT(m.movie_name), m.thumbnail_path FROM streaming_movies sm JOIN movies m ON sm.movie_id = m.id")
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+
+	var streamingList m.StreamingList
+	var streamingLists []m.StreamingList
+
+	for rows.Next() {
+		err = rows.Scan(&streamingList.MovieName, &streamingList.ThumbnailPath)
+		if err != nil {
+			panic(err.Error())
+		}
+		streamingLists = append(streamingLists, streamingList)
+	}
+
+	if len(streamingLists) != 0 {
+		c.IndentedJSON(http.StatusCreated, streamingLists)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 func StreamingMovie(c *gin.Context) {

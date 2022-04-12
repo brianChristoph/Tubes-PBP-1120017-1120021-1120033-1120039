@@ -15,11 +15,11 @@ func main() {
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
-	router.GET("/user", c.GetAllUser)           //View ALl User
-	router.DELETE("/user", c.DeleteUser)        //Delete User
-	router.POST("/movies", c.Register)          //Add Movie
-	router.PUT("/movies", c.Register)           //Update Movie
-	router.GET("/streaming", c.UpdateStreaming) //Update Streaming
+	router.GET("/user", c.GetAllUser)                //View ALl User
+	router.DELETE("/user", c.DeleteUser)             //Delete User
+	router.POST("/movies", c.Register)               //Add Movie
+	router.PUT("/movies", c.Register)                //Update Movie
+	router.GET("/streaming", c.UpdateStreamingMovie) //Update Streaming
 
 	//USER
 	router.POST("/user/login", c.Login)              //Login

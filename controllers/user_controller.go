@@ -177,8 +177,9 @@ func Login(c *gin.Context) {
 	var loginController LoginController = LoginHandler(loginService, jwtService)
 	token := loginController.Login(c, user)
 	if token != "" {
+		c.SetCookie("TOKEN", token, 3600, "/", "localhost", true, true)
 		c.JSON(http.StatusOK, gin.H{
-			"token": token,
+			"message": "Login",
 		})
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
