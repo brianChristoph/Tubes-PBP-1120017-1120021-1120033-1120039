@@ -18,12 +18,19 @@ type User struct {
 	LastSeen time.Time `json:"last_seen"`
 }
 
+type UserRegister struct {
+	Name            string `form:"name" json:"name"`
+	Email           string `form:"email" json:"email"`
+	Password        string `form:"password" json:"password"`
+	PasswordConfirm string `form:"password_confirm" json:"password_confirm"`
+}
+
 type Movie struct {
 	ID             int       `json:"id"`
-	Movie_name     string    `json:"movie name"`
+	Movie_name     string    `json:"movie_name"`
 	Thumbnail_path string    `json:"thumbnail_path"`
 	Synopsis       string    `json:"synopsis"`
-	Last_premier   time.Time `json:"last premier"`
+	Last_premier   time.Time `json:"last_premier"`
 	Streamable     int       `json:"streamable"` // 1= can be stream, 0 = cant be stream
 }
 
@@ -86,7 +93,6 @@ type MovieTheaterInfo struct {
 }
 
 type StreamingList struct {
-	ID        int    `json:"id"`
-	MovieId   string `json:"movie_id"`
-	MoviePath string `json:"movie_path"`
+	MovieName     string `json:"movie_name"`
+	ThumbnailPath string `json:"thumbnail_path"`
 }

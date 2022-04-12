@@ -33,7 +33,7 @@ func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	query := ("SELECT id,movie_id,movie_path FROM streaming_movies")
+	query := ("SELECT  FROM streaming_movies sm")
 
 	rows, err := db.Query(query)
 	if err != nil {
