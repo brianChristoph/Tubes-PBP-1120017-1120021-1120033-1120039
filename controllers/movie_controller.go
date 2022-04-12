@@ -33,7 +33,7 @@ func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	query := ("SELECT  FROM streaming_movies sm")
+	query := ("SELECT m.movie_name,m.thumbnail_path FROM streaming_movies sm JOIN movies m ON sm.movie_name = m.movie_name JOIN movies m ON sm.thumbnail_path = m.thumbnail_path")
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -44,7 +44,7 @@ func ShowStreamingList(c *gin.Context) {
 	var streamingLists []m.StreamingList
 
 	for rows.Next() {
-		err = rows.Scan(&streamingList.ID, &streamingList.MovieId, &streamingList.MoviePath)
+		err = rows.Scan(&streamingList.MovieName, &streamingList.ThumbnailPath)
 		if err != nil {
 			panic(err.Error())
 		}
