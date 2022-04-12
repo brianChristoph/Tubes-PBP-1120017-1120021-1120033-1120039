@@ -33,7 +33,7 @@ func ShowStreamingList(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	query := ("SELECT m.movie_name,m.thumbnail_path FROM streaming_movies sm JOIN movies m ON sm.movie_name = m.movie_name JOIN movies m ON sm.thumbnail_path = m.thumbnail_path")
+	query := ("SELECT DISTINCT(m.movie_name), m.thumbnail_path FROM streaming_movies sm JOIN movies m ON sm.movie_id = m.id JOIN movie_schedules ms ON m.id = ms.movie_id")
 
 	rows, err := db.Query(query)
 	if err != nil {
