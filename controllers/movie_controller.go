@@ -104,7 +104,7 @@ func TheaterList(c *gin.Context) {
 	}
 }
 
-func ViewMovieDescription(c *gin.Context) {
+func ShowMovieDescription(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 

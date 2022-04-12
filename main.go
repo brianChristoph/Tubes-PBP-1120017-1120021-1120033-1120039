@@ -15,7 +15,7 @@ func main() {
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
-	router.GET("/admin/users", c.GetAllUser)               //View ALl User
+	router.GET("/admin/users", c.GetAllUser)               //Show ALl User
 	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
 	router.POST("/admin/movies", c.Register)               //Add Movie
 	router.PUT("/admin/movies", c.Register)                //Update Movie
@@ -37,13 +37,13 @@ func main() {
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                     //Theater List
-	router.GET("/movies/description", c.ViewMovieDescription)       //View Movie Description
+	router.GET("/movies/description", c.ShowMovieDescription)       //Show Movie Description
 	router.GET("/movies/list", c.ShowMovieList)                     //Show Movie List
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie) //Show Available Theater for Certain Movie
 
 	//TRANSACTION
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
-	router.GET("/theaters/studios/seats", c.BookingSeat)         //Pemesanan Kursi
+	router.GET("/theaters/studios/seats", c.BookingSeats)        //Booking Seats
 
 	router.Run("localhost:8080")
 }
