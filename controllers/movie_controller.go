@@ -198,6 +198,10 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 		}
 		//Menggabungkan variabel temporary yang berisi SEMUA informasi theater suatu movie kedalam kelas utama
 		theatersCertainMovie.DataTheaters = allMovieTheatersInfo
-		c.IndentedJSON(http.StatusOK, theatersCertainMovie)
+		if len(allMovieTheatersInfo) != 0 && err != nil {
+			c.IndentedJSON(http.StatusOK, theatersCertainMovie)
+		} else {
+			c.AbortWithStatus(http.StatusNotFound)
+		}
 	}
 }

@@ -54,6 +54,12 @@ func GetAllUser(c *gin.Context) {
 			users = append(users, user)
 		}
 	}
+
+	if len(users) != 0 {
+		c.IndentedJSON(http.StatusOK, users)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 func UpdateUser(c *gin.Context) {
@@ -118,6 +124,8 @@ func UserProfile(c *gin.Context) {
 func BuyVIP(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	// _, getBalance := c.Cookie("")
 }
 
 // General Function
