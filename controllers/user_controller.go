@@ -54,6 +54,15 @@ func GetAllUser(c *gin.Context) {
 			users = append(users, user)
 		}
 	}
+
+	if len(users) == 0 {
+		c.IndentedJSON(http.StatusOK, gin.H{
+			"status": http.StatusOK,
+			"datas":  users,
+		})
+	} else {
+		c.IndentedJSON(http.StatusNotFound, gin.H{})
+	}
 }
 
 func UpdateUser(c *gin.Context) {
@@ -104,11 +113,13 @@ func UpdateUser(c *gin.Context) {
 	// }
 }
 
+// ADMIN
 func DeleteUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
 
+// MEMBER
 func UserProfile(c *gin.Context) {
 	db := connect()
 	defer db.Close()
@@ -177,9 +188,10 @@ func Login(c *gin.Context) {
 	var loginController LoginController = LoginHandler(loginService, jwtService)
 	token := loginController.Login(c, user)
 	if token != "" {
-		c.SetCookie("TOKEN", token, 3600, "/", "localhost", true, true)
+		c.SetCookie("TOKEN", token, 3600, "/user", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Login",
+			"status":  http.StatusOK,
+			"message": "Logged In",
 		})
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
@@ -191,7 +203,7 @@ func DeleteUserPeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN'", time.Now().Format("YYYY-MM-DD"))
+	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN' AND user_type!='VIP'", time.Now().Format("YYYY-MM-DD"))
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
