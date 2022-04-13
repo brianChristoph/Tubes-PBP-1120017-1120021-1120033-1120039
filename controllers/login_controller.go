@@ -26,7 +26,7 @@ func LoginHandler(loginService s.LoginService,
 func (controller *loginController) Login(ctx *gin.Context, user m.User) string {
 	isUserAuthenticated := controller.loginService.LoginUser(user.Email, user.Password)
 	if isUserAuthenticated {
-		return controller.jWtService.GenerateToken(user.Password, user.Email, user.UserType, user.Balance)
+		return controller.jWtService.GenerateToken(user.ID, user.Name, user.Password, user.Email, user.UserType, user.Balance)
 	}
 	return ""
 }

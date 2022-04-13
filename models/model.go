@@ -18,7 +18,7 @@ type User struct {
 	LastSeen time.Time `json:"last_seen"`
 }
 
-type UserRegister struct {
+type UpdateRegister struct {
 	Name            string `form:"name" json:"name"`
 	Email           string `form:"email" json:"email"`
 	Password        string `form:"password" json:"password"`

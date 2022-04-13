@@ -14,20 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUser(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-
-	// var response UsersResponse
-	// if len(users) != 0 {
-	// 	response.Message = "Berhasil Mendapatkan Data Pengguna"
-	// 	response.Data = users
-	// 	sendSuccessResponse(c, response)
-	// } else {
-	// 	response.Message = "Gagal Mendapatkan Data Pengguna"
-	// 	sendErrorResponse(c, response)
-	// }
-}
+var tokenName string = "TOKEN"
 
 func GetAllUser(c *gin.Context) {
 	db := connect()
@@ -69,48 +56,45 @@ func UpdateUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	// name := c.PostForm("name")
-	// password := c.PostForm("password")
-	// email := c.PostForm("email")
-	// isAccessTokenValid, userId, email, userType := validateTokenFromCookies(c)
-	// fmt.Print(email, userType, isAccessTokenValid)
+	isValid, user := s.JWTAuthService("Brian").ValidateTokenFromCookies(c.Request)
+	fmt.Println(isValid)
+	if isValid {
+		var updateProf m.UpdateRegister
+		err := c.Bind(&updateProf)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Form not detected",
+				"data":    err,
+			})
+			return
+		}
+		if updateProf.Password == updateProf.PasswordConfirm {
+			_, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE id=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
 
-	// rows, _ := db.Query("SELECT * FROM persons WHERE id='" + strconv.Itoa(userId) + "'")
-	// var user m.User
-	// for rows.Next() {
-	// 	if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
-	// 		log.Print(err.Error())
-	// 	}
-	// }
-
-	// Jika kosong dimasukkan nilai lama
-	// if name == "" {
-	// 	name = user.Name
-	// }
-
-	// if password == "" {
-	// 	password = user.Password
-	// }
-
-	// if email == "" {
-	// 	email = user.Email
-	// }
-
-	// _, errQuery := db.Exec("UPDATE persons SET name = ?, password = ?, email = ? WHERE id=?",
-	// 	name,
-	// 	password,
-	// 	email,
-	// 	userId,
-	// )
-
-	// var response UserResponse
-	// if errQuery == nil {
-	// 	response.Message = "Berhasil Memperbaharui Data Pengguna"
-	// 	sendSuccessResponse(c, response)
-	// } else {
-	// 	response.Message = "Gagal Memperbaharui Data Pengguna"
-	// 	sendErrorResponse(c, response)
-	// }
+			if errQuery != nil {
+				c.IndentedJSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": "Query Error",
+				})
+			} else {
+				c.IndentedJSON(http.StatusAccepted, gin.H{
+					"status":  http.StatusAccepted,
+					"message": "User Has Been Updated",
+				})
+			}
+		} else {
+			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+				"status":  http.StatusNotAcceptable,
+				"message": "Sam Ting Wong with password and confirm password",
+			})
+		}
+	} else {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": "Token Not Found",
+		})
+	}
 }
 
 // ADMIN
@@ -135,22 +119,40 @@ func BuyVIP(c *gin.Context) {
 
 // General Function
 func Logout(c *gin.Context) {
-	db := connect()
-	defer db.Close()
+	s.ResetUserToken(c.Writer)
 
-	logout, err := db.Query("SELECT * from persons WHERE id=?") // jangan lupa redis
-	if err != nil {
-		panic(err.Error())
-	} else {
-		c.SetCookie("name", "Shimin Li", -1, "/", "localhost", false, true)
-		c.IndentedJSON(http.StatusOK, logout)
-	}
-	defer logout.Close()
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Logged Out",
+	})
 }
 
 func Register(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	var register m.UpdateRegister
+	err := c.Bind(&register)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "Can't connect to form",
+		})
+	}
+
+	_, errQuery := db.Exec("INSERT INTO persons (name, password, email) VALUES (?,?,?)", register.Name, register.Password, register.Email)
+
+	if errQuery != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "Query Error",
+		})
+	} else {
+		c.IndentedJSON(http.StatusCreated, gin.H{
+			"status":  http.StatusCreated,
+			"message": "User Has Been Created",
+		})
+	}
 }
 
 func Login(c *gin.Context) {
@@ -190,7 +192,7 @@ func Login(c *gin.Context) {
 	var loginController LoginController = LoginHandler(loginService, jwtService)
 	token := loginController.Login(c, user)
 	if token != "" {
-		c.SetCookie("TOKEN", token, 3600, "/user", "localhost", false, true)
+		c.SetCookie(tokenName, token, 3600, "/user", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
 			"message": "Logged In",
