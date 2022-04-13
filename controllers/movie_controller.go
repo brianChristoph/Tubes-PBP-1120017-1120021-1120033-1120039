@@ -241,3 +241,32 @@ func ChangePrice(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
+
+func AddMovie(c *gin.Context) {
+
+	db := connect()
+	defer db.Close()
+
+	var movie m.Movie
+
+	err := c.Bind(&movie)
+	if err != nil {
+		return
+	}
+
+	insert, err := db.Query("INSERT INTO movies(movie_name, thumbnail_path, synopsis, last_premier, streamable) VALUES(?,?,?,?,?)",
+		movie.Movie_name,movie.Thumbnail_path,movie.Synopsis,movie.Last_premier,movie.Streamable)
+
+	if err != nil {
+		panic(err.Error())
+	} else {
+		c.IndentedJSON(http.StatusOK, insert)
+	}
+
+	defer insert.Close()
+}
+
+func UpdateMovie(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
