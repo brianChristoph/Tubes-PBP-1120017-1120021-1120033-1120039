@@ -30,10 +30,8 @@ func main() {
 	router.GET("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
 
 	//STREAMING
-	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
-
-	// Pakai query params
-	router.GET("/streaming_movies/stream", c.StreamingMovie) //Streaming Movie
+	router.GET("/streaming_movies/list", c.ShowStreamingList)//Show Streaming List
+	router.GET("/streaming_movies/stream", c.StreamingMovie)//Streaming Movie
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                     //Theater List

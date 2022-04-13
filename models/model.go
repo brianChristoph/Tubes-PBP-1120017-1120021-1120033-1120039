@@ -96,3 +96,7 @@ type StreamingList struct {
 	MovieName     string `json:"movie_name"`
 	ThumbnailPath string `json:"thumbnail_path"`
 }
+
+type UpdateStreamingMovie struct {
+	StreamingDateEnd time.Time `json:"streaming_date_end"`
+}
