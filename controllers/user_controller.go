@@ -129,6 +129,8 @@ func UserProfile(c *gin.Context) {
 func BuyVIP(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	// _, getBalance := c.Cookie("")
 }
 
 // General Function

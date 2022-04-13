@@ -10,7 +10,7 @@ func TransactionBuyTicket(c *gin.Context) {
 	defer db.Close()
 }
 
-func BookingSeat(c *gin.Context) {
+func BookingSeats(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 }
