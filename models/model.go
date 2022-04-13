@@ -11,19 +11,26 @@ import "time"
 type User struct {
 	ID       int       `json:"id"`
 	Name     string    `json:"name"`
-	Password string    `json:"password"`
-	Email    string    `json:"email"`
-	UserType int       `json:"user_type"`
+	Password string    `form:"password" json:"password"`
+	Email    string    `form:"email" json:"email"`
+	UserType string    `json:"user_type"`
 	Balance  int       `json:"balance"`
 	LastSeen time.Time `json:"last_seen"`
 }
 
+type UserRegister struct {
+	Name            string `form:"name" json:"name"`
+	Email           string `form:"email" json:"email"`
+	Password        string `form:"password" json:"password"`
+	PasswordConfirm string `form:"password_confirm" json:"password_confirm"`
+}
+
 type Movie struct {
 	ID             int       `json:"id"`
-	Movie_name     string    `json:"movie name"`
+	Movie_name     string    `json:"movie_name"`
 	Thumbnail_path string    `json:"thumbnail_path"`
 	Synopsis       string    `json:"synopsis"`
-	Last_premier   time.Time `json:"last premier"`
+	Last_premier   time.Time `json:"last_premier"`
 	Streamable     int       `json:"streamable"` // 1= can be stream, 0 = cant be stream
 }
 
@@ -71,4 +78,25 @@ type StreamingMovie struct {
 	MovieName string `json:"movie_name"`
 	Synopsis  string `json:"synopsis"`
 	MoviePath string `json:"movie_path"`
+}
+
+type TheatersCertainMovie struct {
+	MovieName     string             `json:"movie_name"`
+	ThumbnailPath string             `json:"thumbnail_path"`
+	DataTheaters  []MovieTheaterInfo `json:"data_theaters"`
+}
+
+type MovieTheaterInfo struct {
+	TheaterName     string      `json:"theater_name"`
+	Price           int         `json:"price"`
+	DataPlayingTime []time.Time `json:"data_playing_time"`
+}
+
+type StreamingList struct {
+	MovieName     string `json:"movie_name"`
+	ThumbnailPath string `json:"thumbnail_path"`
+}
+
+type UpdateStreamingMovie struct {
+	StreamingDateEnd time.Time `json:"streaming_date_end"`
 }
