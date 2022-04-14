@@ -130,6 +130,9 @@ func BuyVIP(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
+	// t, _ := c.Cookie("TOKEN")
+	// jwt.ParseWithClaims()
+	// s.JWTService.ValidateToken(t)
 	// _, getBalance := c.Cookie("")
 }
 

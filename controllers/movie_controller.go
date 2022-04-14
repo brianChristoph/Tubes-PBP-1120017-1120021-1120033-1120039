@@ -259,7 +259,8 @@ func AddMovie(c *gin.Context) {
 	}
 
 	insert, err := db.Query("INSERT INTO movies(movie_name, thumbnail_path, synopsis, last_premier, streamable) VALUES(?,?,?,?,?)",
-		movie.Movie_name,movie.Thumbnail_path,movie.Synopsis,movie.Last_premier,movie.Streamable)
+		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable,
+	)
 
 	if err != nil {
 		panic(err.Error())
@@ -273,4 +274,23 @@ func AddMovie(c *gin.Context) {
 func UpdateMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	var movie m.Movie
+
+	err := c.Bind(&movie)
+	if err != nil {
+		return
+	}
+
+	update, err := db.Query("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
+		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable, movie.ID,
+	)
+
+	if err != nil {
+		panic(err.Error())
+	} else {
+		c.IndentedJSON(http.StatusOK, update)
+	}
+
+	defer update.Close()
 }
