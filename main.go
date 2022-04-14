@@ -18,7 +18,7 @@ func main() {
 	router.GET("/admin/users", c.GetAllUser)               //Show ALl User
 	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
 	router.POST("/admin/movies", c.Register)               //Add Movie
-	router.PUT("/admin/movies", c.Register)                //Update Movie
+	router.PUT("/admin/movies", c.UpdateMovie)             //Update Movie
 	router.GET("/movie_streaming", c.UpdateStreamingMovie) //Update Streaming
 
 	//USER
@@ -30,8 +30,8 @@ func main() {
 	router.GET("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
 
 	//STREAMING
-	router.GET("/streaming_movies/list", c.ShowStreamingList)//Show Streaming List
-	router.GET("/streaming_movies/stream", c.StreamingMovie)//Streaming Movie
+	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
+	router.GET("/streaming_movies/stream", c.StreamingMovie)  //Streaming Movie
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                     //Theater List
