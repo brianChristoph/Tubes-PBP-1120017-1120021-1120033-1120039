@@ -1,17 +1,22 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	api_tools "github.com/Tubes-PBP/api-tools"
 	// controllers
 	c "github.com/Tubes-PBP/controllers"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/cors"
 )
 
 func main() {
 	router := gin.Default()
 
+	// Background Function
 	go api_tools.RunBackgroundFunc()
 
 	//ADMIN
@@ -43,5 +48,14 @@ func main() {
 	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
 	router.GET("/theaters/studios/seats", c.BookingSeats)        //Booking Seats
 
+	// CORS
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowCredentials: true,
+	})
+	handler := corsHandler.Handler(router)
+
 	router.Run("localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }

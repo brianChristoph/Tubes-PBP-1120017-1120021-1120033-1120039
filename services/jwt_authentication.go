@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -12,7 +11,6 @@ import (
 
 type JWTService interface {
 	GenerateToken(id int, name string, password string, email string, userType string, balance int) string
-	ValidateToken(token string) (*jwt.Token, error)
 	ValidateTokenFromCookies(r *http.Request) (bool, m.User)
 }
 type authCustomClaims struct {
@@ -77,15 +75,6 @@ func ResetUserToken(w http.ResponseWriter) {
 		Expires:  time.Now(),
 		Secure:   false,
 		HttpOnly: true,
-	})
-}
-
-func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
-	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
-		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
-		}
-		return []byte(service.secretKey), nil
 	})
 }
 
