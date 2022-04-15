@@ -23,7 +23,7 @@ func main() {
 	router.GET("/admin/users", c.GetAllUser)               //Show ALl User
 	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
 	router.POST("/admin/movies", c.Register)               //Add Movie
-	router.PUT("/admin/movies", c.Register)                //Update Movie
+	router.PUT("/admin/movies", c.UpdateMovie)             //Update Movie
 	router.GET("/movie_streaming", c.UpdateStreamingMovie) //Update Streaming
 
 	//USER
