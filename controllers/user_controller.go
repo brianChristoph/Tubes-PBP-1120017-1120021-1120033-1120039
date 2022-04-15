@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	// "strconv"
-
 	"fmt"
 	"log"
 	"time"
@@ -16,39 +14,73 @@ import (
 
 var tokenName string = "TOKEN"
 
+// ADMIN
 func GetAllUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	email := c.Query("email")
-	query := "SELECT * FROM user"
-
-	if email != "" {
-		query += " WHERE email ='" + email + "'"
-	}
-
-	rows, err := db.Query(query)
+	rows, err := db.Query("SELECT * FROM persons WHERE user_type != ?", "ADMIN")
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	var user m.User
 	var users []m.User
 	for rows.Next() {
 		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.UserType, &user.Balance, &user.LastSeen); err != nil {
-			log.Print(err.Error())
+			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+				"status":  http.StatusNotAcceptable,
+				"message": "Number of Column Taken isn't The Same as Models",
+				"error":   err,
+			})
 		} else {
 			users = append(users, user)
 		}
 	}
 
-	if len(users) == 0 {
+	if len(users) != 0 {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"status": http.StatusOK,
 			"datas":  users,
 		})
 	} else {
-		c.IndentedJSON(http.StatusNotFound, gin.H{})
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNoContent,
+			"message": "No Data Found",
+		})
+	}
+}
+
+func DeleteUser(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
+// MEMBER
+func UserProfile(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+
+	var name string = GetRedis(c)
+	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	if isValid {
+		if user.Name != "" {
+			c.IndentedJSON(http.StatusOK, gin.H{
+				"status":    http.StatusOK,
+				"user_data": user,
+			})
+		} else {
+			c.IndentedJSON(http.StatusNotFound, gin.H{
+				"status":  http.StatusNotFound,
+				"message": "User Data is Nil",
+			})
+		}
+	} else {
+		c.IndentedJSON(http.StatusGone, gin.H{
+			"status":  http.StatusGone,
+			"message": "Token has Expired",
+		})
 	}
 }
 
@@ -56,7 +88,8 @@ func UpdateUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	isValid, user := s.JWTAuthService("Brian").ValidateTokenFromCookies(c.Request)
+	var name string = GetRedis(c)
+	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
 	fmt.Println(isValid)
 	if isValid {
 		var updateProf m.UpdateRegister
@@ -77,6 +110,7 @@ func UpdateUser(c *gin.Context) {
 					"status":  http.StatusBadRequest,
 					"message": "Query Error",
 				})
+				return
 			} else {
 				c.IndentedJSON(http.StatusAccepted, gin.H{
 					"status":  http.StatusAccepted,
@@ -97,24 +131,33 @@ func UpdateUser(c *gin.Context) {
 	}
 }
 
-// ADMIN
-func DeleteUser(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-}
-
-// MEMBER
-func UserProfile(c *gin.Context) {
-	db := connect()
-	defer db.Close()
-
-}
-
 func BuyVIP(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	// _, getBalance := c.Cookie("")
+	var name string = GetRedis(c)
+	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	if isValid {
+		if user.Balance >= 50000 {
+			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE id=?", "VIP", (user.Balance - 50000), user.ID)
+			if errQuery != nil {
+				c.IndentedJSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": "Query Error",
+				})
+			}
+		} else {
+			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+				"status":  http.StatusNotAcceptable,
+				"message": "Either Failed to Get data Or You are Poor",
+			})
+		}
+	} else {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": "Token Not Found",
+		})
+	}
 }
 
 // General Function
@@ -192,6 +235,7 @@ func Login(c *gin.Context) {
 	var loginController LoginController = LoginHandler(loginService, jwtService)
 	token := loginController.Login(c, user)
 	if token != "" {
+		SetRedis(c, user.Name)
 		c.SetCookie(tokenName, token, 3600, "/user", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
