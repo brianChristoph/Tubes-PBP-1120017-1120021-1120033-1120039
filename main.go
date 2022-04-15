@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	api_tools "github.com/Tubes-PBP/api-tools"
+	"github.com/rs/cors"
 	// controllers
 	c "github.com/Tubes-PBP/controllers"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/rs/cors"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	router.PUT("/user/update", c.UpdateUser)         //Update User
 	router.POST("/user/logout", c.Logout)            //Logout
 	router.GET("/user/profile", c.UserProfile)       //User Profile
-	router.GET("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
+	router.PUT("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
 
 	//STREAMING
 	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
@@ -45,8 +45,8 @@ func main() {
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie) //Show Available Theater for Certain Movie
 
 	//TRANSACTION
-	router.GET("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
-	router.GET("/theaters/studios/seats", c.BookingSeats)        //Booking Seats
+	router.POST("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
+	router.PUT("/theaters/studios/seats", c.BookingSeats)         //Booking Seats
 
 	// CORS
 	corsHandler := cors.New(cors.Options{
@@ -56,6 +56,6 @@ func main() {
 	})
 	handler := corsHandler.Handler(router)
 
-	router.Run("localhost:8080")
+	router.Run("localhost:" + c.LoadEnv("PORT"))
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }

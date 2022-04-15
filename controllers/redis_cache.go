@@ -18,19 +18,14 @@ func newRedisClient(host string, password string) *redis.Client {
 	return client
 }
 
-var redisHost = "localhost:6379"
-var redisPassword = ""
-var key string = "Name"
-
 func SetRedis(c *gin.Context, name string) {
-
 	// Initialized Redis Client
-	rdb := newRedisClient(redisHost, redisPassword)
+	rdb := newRedisClient(LoadEnv("REDIS_HOST"), LoadEnv("REDIS_PASS"))
 	data := name
 	expirationTime := time.Duration(15) * time.Minute
 
 	// Store data to redis
-	op := rdb.Set(context.Background(), key, data, expirationTime)
+	op := rdb.Set(context.Background(), LoadEnv("REDIS_KEY"), data, expirationTime)
 	if err := op.Err(); err != nil {
 		c.IndentedJSON(http.StatusServiceUnavailable, gin.H{
 			"status":  http.StatusServiceUnavailable,
@@ -42,10 +37,10 @@ func SetRedis(c *gin.Context, name string) {
 }
 
 func GetRedis(c *gin.Context) string {
-	rdb := newRedisClient(redisHost, redisPassword)
+	rdb := newRedisClient(LoadEnv("REDIS_HOST"), LoadEnv("REDIS_PASS"))
 
 	// Get data from redis
-	op := rdb.Get(context.Background(), key)
+	op := rdb.Get(context.Background(), LoadEnv("REDIS_KEY"))
 	if err := op.Err(); err != nil {
 		c.IndentedJSON(http.StatusGone, gin.H{
 			"message": "Redis Expired",

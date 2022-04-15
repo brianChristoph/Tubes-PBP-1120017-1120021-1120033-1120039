@@ -12,8 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var tokenName string = "TOKEN"
-
 // ADMIN
 func GetAllUser(c *gin.Context) {
 	db := connect()
@@ -90,7 +88,6 @@ func UpdateUser(c *gin.Context) {
 
 	var name string = GetRedis(c)
 	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
-	fmt.Println(isValid)
 	if isValid {
 		var updateProf m.UpdateRegister
 		err := c.Bind(&updateProf)
@@ -225,9 +222,17 @@ func Login(c *gin.Context) {
 			&user.UserType,
 			&user.Balance,
 			&user.LastSeen); errData != nil {
-			c.IndentedJSON(http.StatusNotFound, errData.Error())
+			c.JSON(http.StatusNotFound, errData.Error())
 			return
 		}
+	}
+
+	if user.ID == 0 {
+		c.JSON(http.StatusNoContent, gin.H{
+			"status":  http.StatusNoContent,
+			"message": "Wrong Email Or Password",
+		})
+		return
 	}
 
 	var loginService s.LoginService = s.StaticLoginService(user.Email, user.Password)
@@ -236,7 +241,7 @@ func Login(c *gin.Context) {
 	token := loginController.Login(c, user)
 	if token != "" {
 		SetRedis(c, user.Name)
-		c.SetCookie(tokenName, token, 3600, "/user", "localhost", false, true)
+		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/user", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
 			"message": "Logged In",
