@@ -17,7 +17,7 @@ func GetAllUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	rows, err := db.Query("SELECT * FROM persons WHERE user_type != ?", "ADMIN")
+	rows, err := db.Query("SELECT * FROM persons WHERE user_type != ?", LoadEnv("ADMIN"))
 	if err != nil {
 		log.Fatal(err)
 		return
