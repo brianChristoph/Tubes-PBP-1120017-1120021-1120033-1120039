@@ -27,26 +27,17 @@ func GetAllUser(c *gin.Context) {
 	var users []m.User
 	for rows.Next() {
 		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.UserType, &user.Balance, &user.LastSeen); err != nil {
-			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
-				"status":  http.StatusNotAcceptable,
-				"message": "Number of Column Taken isn't The Same as Models",
-				"error":   err,
-			})
+			ErrorMessage(c, http.StatusNotAcceptable, "")
 		} else {
 			users = append(users, user)
 		}
 	}
 
 	if len(users) != 0 {
-		c.IndentedJSON(http.StatusOK, gin.H{
-			"status": http.StatusOK,
-			"datas":  users,
-		})
+		SuccessMessage(c, http.StatusOK, "")
+		c.JSON(http.StatusOK, users)
 	} else {
-		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNoContent,
-			"message": "No Data Found",
-		})
+		ErrorMessage(c, http.StatusNoContent, "")
 	}
 }
 
@@ -63,22 +54,16 @@ func UserProfile(c *gin.Context) {
 	var name string = GetRedis(c)
 	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
 	if isValid {
-		if user.Name != "" {
+		if user.ID != 0 {
+			SuccessMessage(c, http.StatusOK, "")
 			c.IndentedJSON(http.StatusOK, gin.H{
-				"status":    http.StatusOK,
 				"user_data": user,
 			})
 		} else {
-			c.IndentedJSON(http.StatusNotFound, gin.H{
-				"status":  http.StatusNotFound,
-				"message": "User Data is Nil",
-			})
+			ErrorMessage(c, http.StatusNoContent, "")
 		}
 	} else {
-		c.IndentedJSON(http.StatusGone, gin.H{
-			"status":  http.StatusGone,
-			"message": "Token has Expired",
-		})
+		ErrorMessage(c, http.StatusGone, "")
 	}
 }
 
@@ -92,39 +77,31 @@ func UpdateUser(c *gin.Context) {
 		var updateProf m.UpdateRegister
 		err := c.Bind(&updateProf)
 		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": "Form not detected",
-				"data":    err,
+			ErrorMessage(c, http.StatusInternalServerError, "Failed to Detect Form")
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{
+				"error": err,
 			})
 			return
 		}
 		if updateProf.Password == updateProf.PasswordConfirm {
-			_, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE id=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
+			res, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE id=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
+			num, _ := res.RowsAffected()
+
+			if num == 0 {
+				ErrorMessage(c, http.StatusBadRequest, "No Content Updated")
+				return
+			}
 
 			if errQuery != nil {
-				c.IndentedJSON(http.StatusBadRequest, gin.H{
-					"status":  http.StatusBadRequest,
-					"message": "Query Error",
-				})
-				return
+				ErrorMessage(c, http.StatusBadRequest, "Query Error")
 			} else {
-				c.IndentedJSON(http.StatusAccepted, gin.H{
-					"status":  http.StatusAccepted,
-					"message": "User Has Been Updated",
-				})
+				SuccessMessage(c, http.StatusOK, "User Has Been Updated")
 			}
 		} else {
-			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
-				"status":  http.StatusNotAcceptable,
-				"message": "Sam Ting Wong with password and confirm password",
-			})
+			ErrorMessage(c, http.StatusNotAcceptable, "Wrong Password/Email")
 		}
 	} else {
-		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"message": "Token Not Found",
-		})
+		ErrorMessage(c, http.StatusNotFound, "")
 	}
 }
 
@@ -138,33 +115,26 @@ func BuyVIP(c *gin.Context) {
 		if user.Balance >= 50000 {
 			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE id=?", "VIP", (user.Balance - 50000), user.ID)
 			if errQuery != nil {
-				c.IndentedJSON(http.StatusBadRequest, gin.H{
-					"status":  http.StatusBadRequest,
-					"message": "Query Error",
-				})
+				ErrorMessage(c, http.StatusBadRequest, "Query Error")
 			}
 		} else {
-			c.IndentedJSON(http.StatusNotAcceptable, gin.H{
-				"status":  http.StatusNotAcceptable,
-				"message": "Either Failed to Get data Or You are Poor",
-			})
+			ErrorMessage(c, http.StatusNotAcceptable, "You Are Too Poor")
 		}
 	} else {
-		c.IndentedJSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"message": "Token Not Found",
-		})
+		ErrorMessage(c, http.StatusNotFound, "")
 	}
 }
 
 // General Function
 func Logout(c *gin.Context) {
-	s.ResetUserToken(c.Writer)
-
-	c.IndentedJSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Logged Out",
-	})
+	var name string = GetRedis(c)
+	isValid, _ := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	if isValid {
+		s.ResetUserToken(c.Writer)
+		SuccessMessage(c, http.StatusOK, "Logged Out")
+	} else {
+		ErrorMessage(c, http.StatusBadRequest, "You Are Not Logged In Anyway")
+	}
 }
 
 func Register(c *gin.Context) {
@@ -174,24 +144,18 @@ func Register(c *gin.Context) {
 	var register m.UpdateRegister
 	err := c.Bind(&register)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "Can't connect to form",
+		ErrorMessage(c, http.StatusInternalServerError, "Failed to Detect Form")
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 	}
 
 	_, errQuery := db.Exec("INSERT INTO persons (name, password, email) VALUES (?,?,?)", register.Name, register.Password, register.Email)
 
 	if errQuery != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "Query Error",
-		})
+		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
-		c.IndentedJSON(http.StatusCreated, gin.H{
-			"status":  http.StatusCreated,
-			"message": "User Has Been Created",
-		})
+		SuccessMessage(c, http.StatusCreated, "User Has Been Created")
 	}
 }
 
@@ -228,10 +192,7 @@ func Login(c *gin.Context) {
 	}
 
 	if user.ID == 0 {
-		c.JSON(http.StatusNoContent, gin.H{
-			"status":  http.StatusNoContent,
-			"message": "Wrong Email Or Password",
-		})
+		ErrorMessage(c, http.StatusNoContent, "Wrong Email/Password")
 		return
 	}
 
@@ -242,10 +203,7 @@ func Login(c *gin.Context) {
 	if token != "" {
 		SetRedis(c, user.Name)
 		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/user", "localhost", false, true)
-		c.JSON(http.StatusOK, gin.H{
-			"status":  http.StatusOK,
-			"message": "Logged In",
-		})
+		SuccessMessage(c, http.StatusOK, "Logged In")
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
 	}
