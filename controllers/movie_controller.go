@@ -243,6 +243,11 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 	}
 }
 
+func ChangePrice(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+}
+
 func AddMovie(c *gin.Context) {
 
 	db := connect()
