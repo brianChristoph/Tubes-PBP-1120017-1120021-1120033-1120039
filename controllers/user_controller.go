@@ -152,6 +152,10 @@ func Register(c *gin.Context) {
 
 	_, errQuery := db.Exec("INSERT INTO persons (name, password, email) VALUES (?,?,?)", register.Name, register.Password, register.Email)
 
+	var userEmail = register.Email
+	GoMail(userEmail)
+	fmt.Print(userEmail)
+
 	if errQuery != nil {
 		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
