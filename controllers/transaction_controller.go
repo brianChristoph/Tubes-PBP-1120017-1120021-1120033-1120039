@@ -24,7 +24,6 @@ func BookingSeats(c *gin.Context) {
 	}
 	if seatStatus == 0 {
 		panic("seat sudah di pesan orang lain")
-		return
 	}
 
 	// Cek trans id
