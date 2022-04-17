@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,7 +20,8 @@ func DeleteMovieSchedulePeriodically() {
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
-		if num == 0 {
+		if num != 0 {
+			fmt.Print("Movie Schedule ")
 			return
 		}
 	}
