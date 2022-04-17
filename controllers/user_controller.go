@@ -44,6 +44,16 @@ func GetAllUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	idUser := c.Query("ID_User")
+
+	_, errQuery := db.Exec("DELETE FROM persons WHERE ID=?", idUser)
+
+	if errQuery == nil {
+		SuccessMessage(c, http.StatusOK, "Person Succesfully Deleted")
+	} else {
+		ErrorMessage(c, http.StatusNoContent, "Delete Person Failed")
+	}
 }
 
 // MEMBER
@@ -84,7 +94,7 @@ func UpdateUser(c *gin.Context) {
 			return
 		}
 		if updateProf.Password == updateProf.PasswordConfirm {
-			res, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE id=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
+			res, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE idUser=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
 			num, _ := res.RowsAffected()
 
 			if num == 0 {
@@ -113,7 +123,7 @@ func BuyVIP(c *gin.Context) {
 	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
 	if isValid {
 		if user.Balance >= 50000 {
-			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE id=?", "VIP", (user.Balance - 50000), user.ID)
+			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE idUser=?", "VIP", (user.Balance - 50000), user.ID)
 			if errQuery != nil {
 				ErrorMessage(c, http.StatusBadRequest, "Query Error")
 			}
@@ -218,11 +228,14 @@ func DeleteUserPeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN' AND user_type!='VIP'", time.Now().Format("YYYY-MM-DD"))
+	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN' AND user_type!='VIP'",
+		time.Now().Format("YYYY-MM-DD"),
+	)
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
 		if num == 0 {
+			fmt.Print(num, " inactive users have been deleted")
 			return
 		}
 	}
