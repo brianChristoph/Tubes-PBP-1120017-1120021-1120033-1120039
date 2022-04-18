@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"net/http"
@@ -224,6 +225,29 @@ func Login(c *gin.Context) {
 		SuccessMessage(c, http.StatusOK, "Logged In")
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
+	}
+}
+
+func TopUp(c *gin.Context) {
+	db := connect()
+	defer db.Close()
+
+	topUpAmount, _ := strconv.Atoi(c.PostForm("Amount"))
+	var name string = GetRedis(c)
+	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	topUpAmount = topUpAmount + user.Balance
+	if isValid {
+		topUp, err := db.Exec("UPDATE persons SET balance=? WHERE id=?",
+			topUpAmount, user.ID,
+		)
+		if err != nil {
+			ErrorMessage(c, http.StatusNotFound, "Query Error")
+		} else {
+			SuccessMessage(c, http.StatusAccepted, "Top Up Sukses")
+			c.IndentedJSON(http.StatusOK, topUp)
+		}
+	} else {
+		ErrorMessage(c, http.StatusBadRequest, "You need to login first")
 	}
 }
 
