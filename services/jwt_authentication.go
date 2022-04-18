@@ -68,16 +68,6 @@ func (service *jwtServices) GenerateToken(id int, name string, password string, 
 	return t
 }
 
-func ResetUserToken(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "TOKEN",
-		Value:    "",
-		Expires:  time.Now(),
-		Secure:   false,
-		HttpOnly: true,
-	})
-}
-
 func (service *jwtServices) ValidateTokenFromCookies(r *http.Request) (bool, m.User) {
 	var user m.User
 	if cookie, err := r.Cookie("TOKEN"); err == nil {

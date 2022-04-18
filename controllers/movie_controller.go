@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,7 +20,8 @@ func DeleteMovieSchedulePeriodically() {
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
-		if num == 0 {
+		if num != 0 {
+			fmt.Print("Movie Schedule ")
 			return
 		}
 	}
@@ -69,7 +71,6 @@ func ShowStreamingList(c *gin.Context) {
 	defer db.Close()
 
 	query := ("SELECT DISTINCT(m.movie_name), m.thumbnail_path FROM streaming_movies sm JOIN movies m ON sm.movie_id = m.id")
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return
@@ -239,11 +240,6 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 		}
 	}
-}
-
-func ChangePrice(c *gin.Context) {
-	db := connect()
-	defer db.Close()
 }
 
 func AddMovie(c *gin.Context) {

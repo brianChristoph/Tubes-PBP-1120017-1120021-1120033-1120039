@@ -34,7 +34,6 @@ func GetAllUser(c *gin.Context) {
 	}
 
 	if len(users) != 0 {
-		SuccessMessage(c, http.StatusOK, "")
 		c.JSON(http.StatusOK, users)
 	} else {
 		ErrorMessage(c, http.StatusNoContent, "")
@@ -44,6 +43,16 @@ func GetAllUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	db := connect()
 	defer db.Close()
+
+	idUser := c.Query("ID_User")
+
+	_, errQuery := db.Exec("DELETE FROM persons WHERE ID=?", idUser)
+
+	if errQuery == nil {
+		SuccessMessage(c, http.StatusOK, "Person Succesfully Deleted")
+	} else {
+		ErrorMessage(c, http.StatusNoContent, "Delete Person Failed")
+	}
 }
 
 // MEMBER
@@ -113,7 +122,7 @@ func BuyVIP(c *gin.Context) {
 	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
 	if isValid {
 		if user.Balance >= 50000 {
-			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE id=?", "VIP", (user.Balance - 50000), user.ID)
+			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE idUser=?", "VIP", (user.Balance - 50000), user.ID)
 			if errQuery != nil {
 				ErrorMessage(c, http.StatusBadRequest, "Query Error")
 			}
@@ -129,8 +138,12 @@ func BuyVIP(c *gin.Context) {
 func Logout(c *gin.Context) {
 	var name string = GetRedis(c)
 	isValid, _ := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+
+	// Reset Token
+	c.SetCookie(LoadEnv("TOKEN_NAME"), "", time.Now().Day(), "/", "localhost", false, true)
+	DeleteRedis(c)
+
 	if isValid {
-		s.ResetUserToken(c.Writer)
 		SuccessMessage(c, http.StatusOK, "Logged Out")
 	} else {
 		ErrorMessage(c, http.StatusBadRequest, "You Are Not Logged In Anyway")
@@ -170,7 +183,6 @@ func Login(c *gin.Context) {
 	var user m.User
 	err := c.Bind(&user)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
@@ -206,7 +218,7 @@ func Login(c *gin.Context) {
 	token := loginController.Login(c, user)
 	if token != "" {
 		SetRedis(c, user.Name)
-		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/user", "localhost", false, true)
+		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/", "localhost", false, true)
 		SuccessMessage(c, http.StatusOK, "Logged In")
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
@@ -223,6 +235,7 @@ func DeleteUserPeriodically() {
 
 	if errQuery != nil {
 		if num == 0 {
+			fmt.Print(num, " inactive users have been deleted")
 			return
 		}
 	}
