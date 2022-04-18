@@ -54,6 +54,13 @@ type Seat struct {
 	Seats_name string `json:"seats_name"`
 }
 
+type BookingSeats struct {
+	Theater_ID int `json:"theater_id"`
+	Studio_ID  int `json:"studio_id"`
+	Seat_ID    int `json:"seat_id"`
+	Ms_ID      int `json:"ms_id"`
+}
+
 type Transaction struct {
 	ID               int       `json:"id"`
 	Person_id        int       `json:"person_id"`
