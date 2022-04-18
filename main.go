@@ -43,11 +43,11 @@ func SetupRouter() *gin.Engine {
 	})
 
 	// ADMIN
-	router.GET("/admin/users", c.GetAllUser)               //Show ALl User
-	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
-	router.POST("/admin/movies", c.Register)               //Add Movie
-	router.PUT("/admin/movies", c.UpdateMovie)             //Update Movie
-	router.GET("/movie_streaming", c.UpdateStreamingMovie) //Update Streaming
+	router.GET("/admin/users", c.Authentication(c.GetAllUser, c.LoadEnv("ADMIN"))) //Show ALl User
+	router.DELETE("/admin/user", c.DeleteUser)                                     //Delete User
+	router.POST("/admin/movies", c.Register)                                       //Add Movie
+	router.PUT("/admin/movies", c.UpdateMovie)                                     //Update Movie
+	router.GET("/movie_streaming", c.UpdateStreamingMovie)                         //Update Streaming
 
 	//USER
 	router.POST("/user/login", c.Login)              //Login
