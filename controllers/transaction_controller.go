@@ -66,7 +66,7 @@ func BookingSeats(c *gin.Context) {
 		panic(errQuery2)
 	}
 	// cara masukin message sukses?
-	if errQuery != nil {
+	if errQuery2 != nil {
 		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
 		SuccessMessage(c, http.StatusCreated, "Sukses")
