@@ -226,6 +226,7 @@ func Login(c *gin.Context) {
 // Background Function
 func DeleteUserPeriodically() {
 	db := connect()
+	defer db.Close()
 
 	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN' AND user_type!='VIP'", time.Now().Format("YYYY-MM-DD"))
 	num, _ := result.RowsAffected()
@@ -236,5 +237,4 @@ func DeleteUserPeriodically() {
 			return
 		}
 	}
-	defer db.Close()
 }
