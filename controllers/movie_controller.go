@@ -2,9 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,46 +30,46 @@ func UpdateStreamingMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
-	// id := c.PostForm("id")
-	// streamingDateEnd := c.PostForm("streaming_date_end")
-
-	// _, errQuery := db.Exec("UPDATE streaming_movie SET streaming_date_end=? WHERE id = ?", streamingDateEnd, id)
-	// if errQuery != nil {
-	// 	ErrorMessage(c, http.StatusBadRequest, "Query Error")
-	// } else {
-	// 	SuccessMessage(c, http.StatusCreated, "Berhasil Update Streaming movie")
-	// }
 	id := c.PostForm("id")
-	StreamingDateEnd, _ := strconv.Atoi(c.PostForm("streaming_date_end"))
-	rows, _ := db.Query("SELECT * FROM streaming_movies WHERE id='" + id + "'")
-	var updateStreaming m.UpdateStreamingMovie
+	streamingDateEnd := c.PostForm("streaming_date_end")
 
-	for rows.Next() {
-		if err := rows.Scan(&updateStreaming.StreamingDateEnd); err != nil {
-			log.Fatal(err.Error())
-		}
-	}
-
-	// Jika data kosong maka akan diisi oleh data sebelumnya yang tersimpan didatabase
-
-	if StreamingDateEnd == 0 {
-		StreamingDateEnd = updateStreaming.StreamingDateEnd.Day()
-	}
-
-	result, errQuery := db.Exec("UPDATE streaming_movies SET streaming_date_end WHERE id=?",
-		StreamingDateEnd,
-		id,
-	)
-	num, _ := result.RowsAffected()
-
+	_, errQuery := db.Exec("UPDATE streaming_movies SET streaming_date_end=? WHERE id = ?", streamingDateEnd, id)
 	if errQuery != nil {
-		if num == 0 {
-			c.AbortWithStatus(http.StatusNotFound)
-		}
+		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
-		SuccessMessage(c, http.StatusOK, "Streaming Movie Updated")
-		c.IndentedJSON(http.StatusCreated, updateStreaming)
+		SuccessMessage(c, http.StatusCreated, "Berhasil Update Streaming movie")
 	}
+	// id := c.PostForm("id")
+	// StreamingDateEnd, _ := strconv.Atoi(c.PostForm("streaming_date_end"))
+	// rows, _ := db.Query("SELECT * FROM streaming_movies WHERE id='" + id + "'")
+	// var updateStreaming m.UpdateStreamingMovie
+
+	// for rows.Next() {
+	// 	if err := rows.Scan(&updateStreaming.StreamingDateEnd); err != nil {
+	// 		log.Fatal(err.Error())
+	// 	}
+	// }
+
+	// // Jika data kosong maka akan diisi oleh data sebelumnya yang tersimpan didatabase
+
+	// if StreamingDateEnd == 0 {
+	// 	StreamingDateEnd = updateStreaming.StreamingDateEnd.Day()
+	// }
+
+	// result, errQuery := db.Exec("UPDATE streaming_movies SET streaming_date_end WHERE id=?",
+	// 	StreamingDateEnd,
+	// 	id,
+	// )
+	// num, _ := result.RowsAffected()
+
+	// if errQuery != nil {
+	// 	if num == 0 {
+	// 		c.AbortWithStatus(http.StatusNotFound)
+	// 	}
+	// } else {
+	// 	SuccessMessage(c, http.StatusOK, "Streaming Movie Updated")
+	// 	c.IndentedJSON(http.StatusCreated, updateStreaming)
+	// }
 
 }
 
