@@ -74,7 +74,6 @@ func SetupRouter() *gin.Engine {
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie) //Show Available Theater for Certain Movie
 
 	//TRANSACTION
-	// router.POST("/transaction/buyTicket", c.Authentication(c.TransactionBuyTicket, userTypeForVIPMember)) //Transaction Buy Ticket
 	router.PUT("/theaters/studios/seats", c.Authentication(c.BookingSeats, userTypeForVIPMember)) //Booking Seats
 
 	return router

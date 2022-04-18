@@ -123,9 +123,11 @@ func BuyVIP(c *gin.Context) {
 	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
 	if isValid {
 		if user.Balance >= 50000 {
-			_, errQuery := db.Exec("UPDATE persons SET status=?, balance=? WHERE idUser=?", "VIP", (user.Balance - 50000), user.ID)
+			_, errQuery := db.Exec("UPDATE persons SET user_type=?, balance=? WHERE id=?", "VIP", (user.Balance - 50000), user.ID)
 			if errQuery != nil {
 				ErrorMessage(c, http.StatusBadRequest, "Query Error")
+			}else{
+				SuccessMessage(c, http.StatusOK, "Congratulation! you are now VIP ")
 			}
 		} else {
 			ErrorMessage(c, http.StatusNotAcceptable, "You Are Too Poor")
