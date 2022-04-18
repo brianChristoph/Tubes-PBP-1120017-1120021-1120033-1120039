@@ -15,7 +15,7 @@ func DeleteMovieSchedulePeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("DELETE FROM movie_schedules")
+	result, errQuery := db.Exec("DELETE FROM movie_schedules WHERE ?-playing_time > 14", time.Now())
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
@@ -287,7 +287,6 @@ func UpdateMovie(c *gin.Context) {
 
 	update, err := db.Query("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
 		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, updatedMonth, movie.Streamable, movie.ID,
-
 	)
 
 	if err != nil {

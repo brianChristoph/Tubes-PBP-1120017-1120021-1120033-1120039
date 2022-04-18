@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
+	"time"
 
+	m "github.com/Tubes-PBP/models"
 	s "github.com/Tubes-PBP/services"
 	"github.com/gin-gonic/gin"
 )
@@ -37,11 +40,11 @@ func TransactionBuyTicket(c *gin.Context, theater_id int) {
 
 		totalPrice = theaterPrice * amountOfSeat
 
-		_, errQuery := db.Exec("UPDATE persons SET balance=? WHERE id=?",(user.Balance - totalPrice), user.ID)
+		_, errQuery := db.Exec("UPDATE persons SET balance=? WHERE id=?", (user.Balance - totalPrice), user.ID)
 		if errQuery != nil {
 			ErrorMessage(c, http.StatusBadRequest, "Query Error")
-		}else{
-			SuccessMessage(c, http.StatusOK,"Success Buy Ticket")
+		} else {
+			SuccessMessage(c, http.StatusOK, "Success Buy Ticket")
 		}
 	} else {
 		ErrorMessage(c, http.StatusNotFound, "")
@@ -53,58 +56,72 @@ func BookingSeats(c *gin.Context) {
 	defer db.Close()
 
 	// get status
-	msId := c.PostForm("ms_id")
-	var seatStatus int
-	seatId := c.PostForm("seat_id")
-	studioId := c.PostForm("studio_id")
-	theaterId := c.PostForm("theater_id")
-	row := db.QueryRow("SELECT DISTINCT(studio_seat.status) from studio_seat JOIN seats ON studio_seat.seat_id = seats.id WHERE seats.id = ? AND studio_id = ?", seatId, studioId)
-	if err := row.Scan(&seatStatus); err != nil {
-		panic(err.Error())
-	}
-	if seatStatus == 0 {
-		panic("seat sudah di pesan orang lain")
+	var book_seat m.BookingSeats
+	err := c.Bind(&book_seat)
+	if err != nil {
+		ErrorMessage(c, http.StatusInternalServerError, "Failed to Detect Form")
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
 	}
 
-	// Cek trans id
-	var count int
-	transId := c.PostForm("trans_id")
-	row2 := db.QueryRow("SELECT count(*) from transactions WHERE id = ?", transId)
-	if err := row2.Scan(&count); err != nil {
-		panic(err.Error())
+	var seatStatus int
+	row := db.QueryRow("SELECT status FROM studio_seat WHERE seat_id = ? AND studio_id = ? AND theater_id = ?", book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID)
+	if err := row.Scan(&seatStatus); err != nil {
+		ErrorMessage(c, http.StatusBadRequest, "Query Error")
+	}
+	if seatStatus == 0 {
+		ErrorMessage(c, http.StatusConflict, "seats taken")
 	}
 
 	// buat transaksi jika belum ada
-	println(count)
-	if count == 0 {
-		personId := c.PostForm("person_id")
-		_, errQuery := db.Exec("INSERT INTO transactions (person_id) values (?)", personId)
-		if errQuery != nil {
-			panic(errQuery)
-		}
-	}
+	var name string = GetRedis(c)
+	isValid, user := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	if isValid {
+		insertTransaction(db, user.ID)
+		// insert detail transaksi
+		insertDetailTransaction(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID, book_seat.Ms_ID, user.ID)
 
-	// insert detail transaksi
-	_, errQuery := db.Exec("INSERT INTO detail_transactions (transaction_id, seat_id, studio_id, theater_id, ms_id) values (?, ?, ?, ?, ?)", transId, seatId, studioId, theaterId, msId)
+		// Update status seat
+		updateSeatStatus(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID)
+
+		// Update quantity
+		updateQuantity(db, book_seat.Theater_ID)
+
+		// message sukses
+		SuccessMessage(c, http.StatusCreated, "Sukses")
+	}
+	TransactionBuyTicket(c, book_seat.Theater_ID)
+}
+
+func insertTransaction(db *sql.DB, id int) {
+	_, errQuery := db.Exec("INSERT INTO transactions (person_id, transaction_date) values (?, ?)", id, time.Now().Format("YYYY-MM-DD"))
 	if errQuery != nil {
 		panic(errQuery)
 	}
-	// Update status seat
-	_, errQuery2 := db.Exec("UPDATE studio_seat SET status = 0 WHERE seat_id = ?", seatId)
+}
+
+func insertDetailTransaction(db *sql.DB, seat_id int, studio_id int, theater_id int, ms_id int, user_id int) {
+	_, errQuery1 := db.Exec("INSERT INTO detail_transactions (transaction_id, seat_id, studio_id, theater_id, ms_id)"+
+		" SELECT MAX(transactions.id), ?, ?, ?, ? FROM transactions"+
+		" JOIN persons ON persons.id = transactions.person_id"+
+		" WHERE persons.id = ?", seat_id, studio_id, theater_id, ms_id, user_id)
+	if errQuery1 != nil {
+		panic(errQuery1)
+	}
+}
+
+func updateSeatStatus(db *sql.DB, seat_id int, studio_id int, theater_id int) {
+	_, errQuery2 := db.Exec("UPDATE studio_seat SET status = 0 WHERE seat_id = ? AND studio_id = ? AND theater_id = ?", seat_id, studio_id, theater_id)
 	if errQuery2 != nil {
 		panic(errQuery2)
 	}
+}
 
-	// Update quantity
-	_, errQuery3 := db.Exec("UPDATE theater_studio SET quantity = quantity-1 WHERE theater_id = ?", theaterId)
+func updateQuantity(db *sql.DB, theater_id int) {
+	_, errQuery3 := db.Exec("UPDATE theater_studio SET quantity = quantity-1 WHERE theater_id = ?", theater_id)
 	if errQuery3 != nil {
 		panic(errQuery3)
-	}
-
-	// message sukses
-	if errQuery2 != nil {
-		ErrorMessage(c, http.StatusBadRequest, "Query Error")
-	} else {
-		SuccessMessage(c, http.StatusCreated, "Sukses")
 	}
 }
