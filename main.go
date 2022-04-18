@@ -61,6 +61,7 @@ func SetupRouter() *gin.Engine {
 	router.POST("/user/logout", c.Logout)                                                     //Logout
 	router.GET("/user/profile", c.Authentication(c.UserProfile, userTypeForVIPMember))        //User Profile
 	router.PUT("/user/transaction/buyVIP", c.Authentication(c.BuyVIP, userTypeForMemberOnly)) //Buy VIP
+	router.PUT("/user/topUp", c.Authentication(c.TopUp, userTypeForVIPMember))                //Top Up
 
 	//STREAMING
 	router.GET("/streaming_movies/list", c.Authentication(c.ShowStreamingList, userTypeForVIPOnly)) //Show Streaming List
