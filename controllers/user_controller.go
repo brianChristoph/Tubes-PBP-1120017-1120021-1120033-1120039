@@ -93,7 +93,7 @@ func UpdateUser(c *gin.Context) {
 			return
 		}
 		if updateProf.Password == updateProf.PasswordConfirm {
-			res, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE idUser=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
+			res, errQuery := db.Exec("UPDATE persons SET name=?, password=?, email=? WHERE id=?", updateProf.Name, updateProf.Password, updateProf.Email, user.ID)
 			num, _ := res.RowsAffected()
 
 			if num == 0 {
@@ -138,8 +138,8 @@ func BuyVIP(c *gin.Context) {
 func Logout(c *gin.Context) {
 	var name string = GetRedis(c)
 	isValid, _ := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
+	s.ResetUserToken(c.Writer)
 	if isValid {
-		s.ResetUserToken(c.Writer)
 		SuccessMessage(c, http.StatusOK, "Logged Out")
 	} else {
 		ErrorMessage(c, http.StatusBadRequest, "You Are Not Logged In Anyway")
