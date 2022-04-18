@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,35 +33,24 @@ func UpdateStreamingMovie(c *gin.Context) {
 	defer db.Close()
 
 	id := c.PostForm("id")
-	StreamingDateEnd, _ := strconv.Atoi(c.PostForm("streaming_date_end"))
+	updateMonth, _ := strconv.Atoi(c.PostForm("Update Month"))
 
-	rows, _ := db.Query("SELECT * FROM streaming_movies WHERE id='" + id + "'")
-	var updateStreaming m.UpdateStreamingMovie
-
-	for rows.Next() {
-		if err := rows.Scan(&updateStreaming.StreamingDateEnd); err != nil {
-			log.Fatal(err.Error())
-		}
-	}
-
-	// Jika data kosong maka akan diisi oleh data sebelumnya yang tersimpan didatabase
-
-	if StreamingDateEnd == 0 {
-		StreamingDateEnd = updateStreaming.StreamingDateEnd.Day()
-	}
-
-	result, errQuery := db.Exec("UPDATE streaming_movies SET streaming_date_end WHERE id=?",
-		StreamingDateEnd,
+	var currentLastPremier time.Time
+	row1 := db.QueryRow("SELECT streaming_date_end FROM streaming_movies WHERE id=?",
 		id,
 	)
-	num, _ := result.RowsAffected()
+	if err := row1.Scan(&currentLastPremier); err != nil {
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	}
 
+	updatedMonth := currentLastPremier.AddDate(0, updateMonth, 0)
+
+	_, errQuery := db.Exec("UPDATE streaming_movies SET streaming_date_end=? WHERE id = ?", updatedMonth, id)
 	if errQuery != nil {
-		if num == 0 {
-			c.AbortWithStatus(http.StatusNotFound)
-		}
+		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
-		c.IndentedJSON(http.StatusCreated, updateStreaming)
+		SuccessMessage(c, http.StatusCreated, "Berhasil Update Streaming movie")
 	}
 
 }
@@ -254,8 +243,11 @@ func AddMovie(c *gin.Context) {
 		return
 	}
 
+	t := time.Now()
+	t2 := t.AddDate(0, 3, 0)
+
 	insert, err := db.Query("INSERT INTO movies(movie_name, thumbnail_path, synopsis, last_premier, streamable) VALUES(?,?,?,?,?)",
-		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable,
+		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, t2, movie.Streamable,
 	)
 
 	if err != nil {
@@ -272,14 +264,25 @@ func UpdateMovie(c *gin.Context) {
 	defer db.Close()
 
 	var movie m.Movie
-
+	updateMonth, _ := strconv.Atoi(c.PostForm("Update Month"))
 	err := c.Bind(&movie)
 	if err != nil {
 		return
 	}
 
+	var currentLastPremier time.Time
+	row1 := db.QueryRow("SELECT last_premier FROM movies WHERE id=?",
+		movie.ID,
+	)
+	if err := row1.Scan(&currentLastPremier); err != nil {
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	}
+
+	updatedMonth := currentLastPremier.AddDate(0, updateMonth, 0)
+
 	update, err := db.Query("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
-		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable, movie.ID,
+		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, updatedMonth, movie.Streamable, movie.ID,
 	)
 
 	if err != nil {
