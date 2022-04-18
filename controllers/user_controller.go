@@ -228,9 +228,7 @@ func DeleteUserPeriodically() {
 	db := connect()
 	defer db.Close()
 
-	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='?' AND user_type!='?'",
-		time.Now().Format("YYYY-MM-DD"), LoadEnv("ADMIN"), LoadEnv("VIP"),
-	)
+	result, errQuery := db.Exec("DELETE FROM persons WHERE ?-last_seen > 60 AND user_type!='ADMIN' AND user_type!='VIP'", time.Now().Format("YYYY-MM-DD"))
 	num, _ := result.RowsAffected()
 
 	if errQuery != nil {
