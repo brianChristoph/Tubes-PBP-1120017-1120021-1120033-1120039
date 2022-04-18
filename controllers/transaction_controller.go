@@ -3,11 +3,8 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
-<<<<<<< HEAD
-	"strconv"
-=======
+
 	"time"
->>>>>>> 5ca081309f7786f221758e25b1484ac4c4e9d6f5
 
 	m "github.com/Tubes-PBP/models"
 	s "github.com/Tubes-PBP/services"
