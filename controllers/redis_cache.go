@@ -58,3 +58,15 @@ func GetRedis(c *gin.Context) string {
 	}
 	return res
 }
+
+func DeleteRedis(c *gin.Context) {
+	rdb := newRedisClient(LoadEnv("REDIS_HOST"), LoadEnv("REDIS_PASS"))
+	err := rdb.Del(context.Background(), LoadEnv("REDIS_KEY")).Err()
+	if err != nil {
+		c.IndentedJSON(http.StatusNoContent, gin.H{
+			"message": "Redis Nil Value",
+			"status":  http.StatusNoContent,
+		})
+		return
+	}
+}
