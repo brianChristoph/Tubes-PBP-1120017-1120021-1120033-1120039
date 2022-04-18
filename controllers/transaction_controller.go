@@ -20,6 +20,7 @@ func BookingSeats(c *gin.Context) {
 	var seatStatus int
 	seatId := c.PostForm("seat_id")
 	studioId := c.PostForm("studio_id")
+	theaterId := c.PostForm("theater_id")
 	row := db.QueryRow("SELECT DISTINCT(studio_seat.status) from studio_seat JOIN seats ON studio_seat.seat_id = seats.id WHERE seats.id = ? AND studio_id = ?", seatId, studioId)
 	if err := row.Scan(&seatStatus); err != nil {
 		panic(err.Error())
@@ -36,7 +37,7 @@ func BookingSeats(c *gin.Context) {
 		panic(err.Error())
 	}
 
-	// buat trans jika belum ada
+	// buat transaksi jika belum ada
 	println(count)
 	if count == 0 {
 		personId := c.PostForm("person_id")
@@ -46,8 +47,8 @@ func BookingSeats(c *gin.Context) {
 		}
 	}
 
-	// insert detail trans
-	_, errQuery := db.Exec("INSERT INTO detail_transactions (transaction_id, seat_id, ms_id) values (?, ?, ?)", transId, seatId, msId)
+	// insert detail transaksi
+	_, errQuery := db.Exec("INSERT INTO detail_transactions (transaction_id, seat_id, studio_id, theater_id, ms_id) values (?, ?, ?, ?, ?)", transId, seatId, studioId, theaterId, msId)
 	if errQuery != nil {
 		panic(errQuery)
 	}
@@ -56,6 +57,13 @@ func BookingSeats(c *gin.Context) {
 	if errQuery2 != nil {
 		panic(errQuery2)
 	}
+
+	// Update quantity
+	_, errQuery3 := db.Exec("UPDATE theater_studio SET quantity = quantity-1 WHERE theater_id = ?", theaterId)
+	if errQuery3 != nil {
+		panic(errQuery3)
+	}
+
 	// message sukses
 	if errQuery2 != nil {
 		ErrorMessage(c, http.StatusBadRequest, "Query Error")
