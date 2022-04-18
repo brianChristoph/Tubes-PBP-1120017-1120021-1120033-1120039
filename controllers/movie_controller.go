@@ -14,6 +14,7 @@ import (
 
 func DeleteMovieSchedulePeriodically() {
 	db := connect()
+	defer db.Close()
 
 	result, errQuery := db.Exec("DELETE FROM movie_schedules")
 	num, _ := result.RowsAffected()
@@ -24,7 +25,6 @@ func DeleteMovieSchedulePeriodically() {
 			return
 		}
 	}
-	defer db.Close()
 }
 
 //STREAMING
