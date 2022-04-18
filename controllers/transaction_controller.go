@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -64,5 +66,9 @@ func BookingSeats(c *gin.Context) {
 		panic(errQuery2)
 	}
 	// cara masukin message sukses?
-	print("f")
+	if errQuery != nil {
+		ErrorMessage(c, http.StatusBadRequest, "Query Error")
+	} else {
+		SuccessMessage(c, http.StatusCreated, "Sukses")
+	}
 }
