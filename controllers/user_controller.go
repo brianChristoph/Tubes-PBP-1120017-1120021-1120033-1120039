@@ -34,7 +34,6 @@ func GetAllUser(c *gin.Context) {
 	}
 
 	if len(users) != 0 {
-		SuccessMessage(c, http.StatusOK, "")
 		c.JSON(http.StatusOK, users)
 	} else {
 		ErrorMessage(c, http.StatusNoContent, "")
@@ -180,7 +179,6 @@ func Login(c *gin.Context) {
 	var user m.User
 	err := c.Bind(&user)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
@@ -216,7 +214,7 @@ func Login(c *gin.Context) {
 	token := loginController.Login(c, user)
 	if token != "" {
 		SetRedis(c, user.Name)
-		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/user", "localhost", false, true)
+		c.SetCookie(LoadEnv("TOKEN_NAME"), token, 3600, "/", "localhost", false, true)
 		SuccessMessage(c, http.StatusOK, "Logged In")
 	} else {
 		c.JSON(http.StatusUnauthorized, nil)
