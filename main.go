@@ -15,12 +15,34 @@ import (
 )
 
 func main() {
-	router := gin.Default()
+	router := SetupRouter()
 
 	// Background Function
 	go api_tools.RunBackgroundFunc()
 
-	//ADMIN
+	// CORS
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowCredentials: true,
+	})
+	handler := corsHandler.Handler(router)
+
+	router.Run("localhost:" + c.LoadEnv("PORT"))
+	log.Fatal(http.ListenAndServe(":8080", handler))
+}
+
+func SetupRouter() *gin.Engine {
+	router := gin.Default()
+
+	// Testing
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"hello": "world",
+		})
+	})
+
+	// ADMIN
 	router.GET("/admin/users", c.GetAllUser)               //Show ALl User
 	router.DELETE("/admin/user", c.DeleteUser)             //Delete User
 	router.POST("/admin/movies", c.Register)               //Add Movie
@@ -49,14 +71,5 @@ func main() {
 	router.POST("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
 	router.PUT("/theaters/studios/seats", c.BookingSeats)         //Booking Seats
 
-	// CORS
-	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowCredentials: true,
-	})
-	handler := corsHandler.Handler(router)
-
-	router.Run("localhost:" + c.LoadEnv("PORT"))
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	return router
 }
