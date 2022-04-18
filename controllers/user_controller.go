@@ -138,7 +138,11 @@ func BuyVIP(c *gin.Context) {
 func Logout(c *gin.Context) {
 	var name string = GetRedis(c)
 	isValid, _ := s.JWTAuthService(name).ValidateTokenFromCookies(c.Request)
-	s.ResetUserToken(c.Writer)
+
+	// Reset Token
+	c.SetCookie(LoadEnv("TOKEN_NAME"), "", time.Now().Day(), "/", "localhost", false, true)
+	DeleteRedis(c)
+
 	if isValid {
 		SuccessMessage(c, http.StatusOK, "Logged Out")
 	} else {

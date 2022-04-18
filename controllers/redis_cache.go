@@ -22,7 +22,7 @@ func SetRedis(c *gin.Context, name string) {
 	// Initialized Redis Client
 	rdb := newRedisClient(LoadEnv("REDIS_HOST"), LoadEnv("REDIS_PASS"))
 	data := name
-	expirationTime := time.Duration(15) * time.Minute
+	expirationTime := time.Duration(1) * time.Hour
 
 	// Store data to redis
 	op := rdb.Set(context.Background(), LoadEnv("REDIS_KEY"), data, expirationTime)
