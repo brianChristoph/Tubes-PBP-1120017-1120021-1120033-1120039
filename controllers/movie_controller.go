@@ -266,6 +266,7 @@ func AddMovie(c *gin.Context) {
 	if err != nil {
 		ErrorMessage(c, http.StatusNoContent, "Query Error")
 	} else {
+		SuccessMessage(c, http.StatusOK, "Movie Added")
 		c.IndentedJSON(http.StatusOK, insert)
 	}
 
@@ -283,15 +284,14 @@ func UpdateMovie(c *gin.Context) {
 		return
 	}
 
-	update, err := db.Query("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
+	update, err := db.Exec("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
 		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable, movie.ID,
 	)
 
 	if err != nil {
 		ErrorMessage(c, http.StatusNoContent, "Query Error")
 	} else {
+		SuccessMessage(c, http.StatusOK, "Movie Updated")
 		c.IndentedJSON(http.StatusOK, update)
 	}
-
-	defer update.Close()
 }
