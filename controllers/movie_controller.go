@@ -69,6 +69,7 @@ func UpdateStreamingMovie(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 		}
 	} else {
+		SuccessMessage(c, http.StatusOK, "Streaming Movie Updated")
 		c.IndentedJSON(http.StatusCreated, updateStreaming)
 	}
 
@@ -90,12 +91,13 @@ func ShowStreamingList(c *gin.Context) {
 	for rows.Next() {
 		err = rows.Scan(&streamingList.MovieName, &streamingList.ThumbnailPath)
 		if err != nil {
-			panic(err.Error())
+			ErrorMessage(c, http.StatusNotFound, "Data Not Found")
 		}
 		streamingLists = append(streamingLists, streamingList)
 	}
 
 	if len(streamingLists) != 0 {
+		SuccessMessage(c, http.StatusOK, "Streaming List Data Found")
 		c.IndentedJSON(http.StatusCreated, streamingLists)
 	} else {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -112,8 +114,9 @@ func StreamingMovie(c *gin.Context) {
 
 	var movieStream m.StreamingMovie
 	if err := row.Scan(&movieStream.MovieName, &movieStream.Synopsis, &movieStream.MoviePath); err != nil {
-		panic(err.Error())
+		ErrorMessage(c, http.StatusNotFound, "Scan not found")
 	} else {
+		SuccessMessage(c, http.StatusOK, "Streaming Movie Data Found")
 		c.IndentedJSON(http.StatusOK, movieStream)
 	}
 }
@@ -136,13 +139,14 @@ func TheaterList(c *gin.Context) {
 	for rows.Next() {
 		err = rows.Scan(&theater.ID, &theater.TheaterName, &theater.LocationID, &theater.Price)
 		if err != nil {
-			panic(err.Error())
+			ErrorMessage(c, http.StatusNotFound, "Data Not Found")
 		}
 		theaters = append(theaters, theater)
 	}
 
 	if len(theaters) != 0 {
 		c.IndentedJSON(http.StatusCreated, theaters)
+		SuccessMessage(c, http.StatusOK, "Theaters Data Found")
 	} else {
 		c.AbortWithStatus(http.StatusNotFound)
 	}
@@ -159,7 +163,7 @@ func ShowMovieDescription(c *gin.Context) {
 
 	var movie m.Movie
 	if err := rows.Scan(&movie.ID, &movie.Movie_name, &movie.Thumbnail_path, &movie.Synopsis, &movie.Last_premier, &movie.Streamable); err != nil {
-		panic(err.Error())
+		ErrorMessage(c, http.StatusNoContent, "Movie Not Found")
 	} else {
 		c.IndentedJSON(http.StatusOK, movie)
 	}
@@ -182,7 +186,7 @@ func ShowMovieList(c *gin.Context) {
 	for rows.Next() {
 		err = rows.Scan(&movie.ID, &movie.Movie_name, &movie.Thumbnail_path)
 		if err != nil {
-			panic(err.Error())
+			ErrorMessage(c, http.StatusNotFound, "Data Not Found")
 		}
 		movies = append(movies, movie)
 	}
@@ -207,11 +211,11 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 	var theatersCertainMovie m.TheatersCertainMovie
 
 	if err := row.Scan(&theatersCertainMovie.MovieName, &theatersCertainMovie.ThumbnailPath); err != nil {
-		panic(err.Error())
+		ErrorMessage(c, http.StatusNotFound, "Data Not Found")
 	} else {
 		rows1, err := db.Query("SELECT DISTINCT(theaters.id), theaters.theater_name, theaters.price FROM movie_schedules JOIN studios ON movie_schedules.studio_id = studios.id JOIN theater_studio ON studios.id = theater_studio.studio_id JOIN theaters ON theater_studio.theater_id = theaters.id WHERE movie_schedules.movie_id =?", idMovie)
 		if err != nil {
-			panic(err.Error())
+			ErrorMessage(c, http.StatusNoContent, "Query Error")
 		}
 
 		for rows1.Next() {
@@ -219,19 +223,19 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 			err := rows1.Scan(&idTheater, &movieTheatersInfo.TheaterName, &movieTheatersInfo.Price)
 
 			if err != nil {
-				panic(err.Error())
+				ErrorMessage(c, http.StatusNoContent, "Query Error")
 			}
 
 			rows2, err := db.Query("SELECT movie_schedules.playing_time FROM movie_schedules JOIN studios ON movie_schedules.studio_id = studios.id JOIN theater_studio ON studios.id = theater_studio.studio_id WHERE movie_schedules.movie_id=? AND theater_studio.theater_id=?", idMovie, idTheater)
 			if err != nil {
-				panic(err.Error())
+				ErrorMessage(c, http.StatusNoContent, "Query Error")
 			}
 			var timeArr []time.Time
 			var time time.Time
 			for rows2.Next() {
 				err := rows2.Scan(&time)
 				if err != nil {
-					panic(err.Error())
+					ErrorMessage(c, http.StatusNotFound, "Data Not Found")
 				}
 				timeArr = append(timeArr, time)
 			}
@@ -243,6 +247,7 @@ func ShowTheaterForCertainMovie(c *gin.Context) {
 		//Menggabungkan variabel temporary yang berisi SEMUA informasi theater suatu movie kedalam kelas utama
 		theatersCertainMovie.DataTheaters = allMovieTheatersInfo
 		if len(allMovieTheatersInfo) != 0 && err != nil {
+			SuccessMessage(c, http.StatusOK, "Data Found Success")
 			c.IndentedJSON(http.StatusOK, theatersCertainMovie)
 		} else {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -267,8 +272,9 @@ func AddMovie(c *gin.Context) {
 	)
 
 	if err != nil {
-		panic(err.Error())
+		ErrorMessage(c, http.StatusNoContent, "Query Error")
 	} else {
+		SuccessMessage(c, http.StatusOK, "Movie Added")
 		c.IndentedJSON(http.StatusOK, insert)
 	}
 
@@ -286,15 +292,14 @@ func UpdateMovie(c *gin.Context) {
 		return
 	}
 
-	update, err := db.Query("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
+	update, err := db.Exec("UPDATE movies SET movie_name=?, thumbnail_path=?, synopsis=?, last_premier=?, streamable=? WHERE id=?",
 		movie.Movie_name, movie.Thumbnail_path, movie.Synopsis, movie.Last_premier, movie.Streamable, movie.ID,
 	)
 
 	if err != nil {
-		panic(err.Error())
+		ErrorMessage(c, http.StatusNoContent, "Query Error")
 	} else {
+		SuccessMessage(c, http.StatusOK, "Movie Updated")
 		c.IndentedJSON(http.StatusOK, update)
 	}
-
-	defer update.Close()
 }
