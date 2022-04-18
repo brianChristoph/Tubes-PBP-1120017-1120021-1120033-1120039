@@ -14,6 +14,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var userTypeForAdmin = []string{c.LoadEnv("ADMIN")}
+var userTypeForMemberOnly = []string{c.LoadEnv("MEMBER")}
+var userTypeForVIPOnly = []string{c.LoadEnv("VIP")}
+var userTypeForVIPMember = []string{c.LoadEnv("VIP"), c.LoadEnv("MEMBER")}
+
 func main() {
 	router := SetupRouter()
 
@@ -43,23 +48,23 @@ func SetupRouter() *gin.Engine {
 	})
 
 	// ADMIN
-	router.GET("/admin/users", c.Authentication(c.GetAllUser, c.LoadEnv("ADMIN"))) //Show ALl User
-	router.DELETE("/admin/user", c.DeleteUser)                                     //Delete User
-	router.POST("/admin/movies", c.Register)                                       //Add Movie
-	router.PUT("/admin/movies", c.UpdateMovie)                                     //Update Movie
-	router.GET("/movie_streaming", c.UpdateStreamingMovie)                         //Update Streaming
+	router.GET("/admin/users", c.Authentication(c.GetAllUser, userTypeForAdmin))               //Show All User
+	router.DELETE("/admin/user", c.Authentication(c.DeleteUser, userTypeForAdmin))             //Delete User
+	router.POST("/admin/movies", c.Authentication(c.AddMovie, userTypeForAdmin))               //Add Movie
+	router.PUT("/admin/movies", c.Authentication(c.UpdateMovie, userTypeForAdmin))             //Update Movie
+	router.PUT("/movie_streaming", c.Authentication(c.UpdateStreamingMovie, userTypeForAdmin)) //Update Streaming
 
 	//USER
-	router.POST("/user/login", c.Login)              //Login
-	router.POST("/user/register", c.Register)        //Register
-	router.PUT("/user/update", c.UpdateUser)         //Update User
-	router.POST("/user/logout", c.Logout)            //Logout
-	router.GET("/user/profile", c.UserProfile)       //User Profile
-	router.PUT("/user/transaction/buyVIP", c.BuyVIP) //Buy VIP
+	router.POST("/user/login", c.Login)                                                       //Login
+	router.POST("/user/register", c.Register)                                                 //Register
+	router.PUT("/user/update", c.Authentication(c.UpdateUser, userTypeForVIPMember))          //Update User
+	router.POST("/user/logout", c.Logout)                                                     //Logout
+	router.GET("/user/profile", c.Authentication(c.UserProfile, userTypeForVIPMember))        //User Profile
+	router.PUT("/user/transaction/buyVIP", c.Authentication(c.BuyVIP, userTypeForMemberOnly)) //Buy VIP
 
 	//STREAMING
-	router.GET("/streaming_movies/list", c.ShowStreamingList) //Show Streaming List
-	router.GET("/streaming_movies/stream", c.StreamingMovie)  //Streaming Movie
+	router.GET("/streaming_movies/list", c.Authentication(c.ShowStreamingList, userTypeForVIPOnly)) //Show Streaming List
+	router.GET("/streaming_movies/stream", c.Authentication(c.StreamingMovie, userTypeForVIPOnly))  //Streaming Movie
 
 	//MOVIES
 	router.GET("/theaters/list", c.TheaterList)                     //Theater List
@@ -68,8 +73,8 @@ func SetupRouter() *gin.Engine {
 	router.GET("/theaters/available", c.ShowTheaterForCertainMovie) //Show Available Theater for Certain Movie
 
 	//TRANSACTION
-	router.POST("/transaction/buyTicket", c.TransactionBuyTicket) //Transaction Buy Ticket
-	router.PUT("/theaters/studios/seats", c.BookingSeats)         //Booking Seats
+	router.POST("/transaction/buyTicket", c.Authentication(c.TransactionBuyTicket, userTypeForVIPMember)) //Transaction Buy Ticket
+	router.PUT("/theaters/studios/seats", c.Authentication(c.BookingSeats, userTypeForVIPMember))         //Booking Seats
 
 	return router
 }
