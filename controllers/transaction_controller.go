@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	s "github.com/Tubes-PBP/services"
 	"github.com/gin-gonic/gin"
@@ -37,11 +38,11 @@ func TransactionBuyTicket(c *gin.Context, theater_id int) {
 
 		totalPrice = theaterPrice * amountOfSeat
 
-		_, errQuery := db.Exec("UPDATE persons SET balance=? WHERE id=?",(user.Balance - totalPrice), user.ID)
+		_, errQuery := db.Exec("UPDATE persons SET balance=? WHERE id=?", (user.Balance - totalPrice), user.ID)
 		if errQuery != nil {
 			ErrorMessage(c, http.StatusBadRequest, "Query Error")
-		}else{
-			SuccessMessage(c, http.StatusOK,"Success Buy Ticket")
+		} else {
+			SuccessMessage(c, http.StatusOK, "Success Buy Ticket")
 		}
 	} else {
 		ErrorMessage(c, http.StatusNotFound, "")
@@ -106,5 +107,7 @@ func BookingSeats(c *gin.Context) {
 		ErrorMessage(c, http.StatusBadRequest, "Query Error")
 	} else {
 		SuccessMessage(c, http.StatusCreated, "Sukses")
+		theater_id, err := strconv.Atoi(theaterId)
+		TransactionBuyTicket(c, theaterId)
 	}
 }
