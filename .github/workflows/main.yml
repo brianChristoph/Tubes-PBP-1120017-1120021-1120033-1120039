@@ -32,7 +32,7 @@ jobs:
       run: go build .
       
     # Run vet & lint on the code
-    - name: Run vet & lint
+    - name: Run vet
       run: go vet .
     
     # Run testing on the code
