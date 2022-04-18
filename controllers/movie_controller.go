@@ -32,9 +32,17 @@ func UpdateStreamingMovie(c *gin.Context) {
 	db := connect()
 	defer db.Close()
 
+	// id := c.PostForm("id")
+	// streamingDateEnd := c.PostForm("streaming_date_end")
+
+	// _, errQuery := db.Exec("UPDATE streaming_movie SET streaming_date_end=? WHERE id = ?", streamingDateEnd, id)
+	// if errQuery != nil {
+	// 	ErrorMessage(c, http.StatusBadRequest, "Query Error")
+	// } else {
+	// 	SuccessMessage(c, http.StatusCreated, "Berhasil Update Streaming movie")
+	// }
 	id := c.PostForm("id")
 	StreamingDateEnd, _ := strconv.Atoi(c.PostForm("streaming_date_end"))
-
 	rows, _ := db.Query("SELECT * FROM streaming_movies WHERE id='" + id + "'")
 	var updateStreaming m.UpdateStreamingMovie
 
