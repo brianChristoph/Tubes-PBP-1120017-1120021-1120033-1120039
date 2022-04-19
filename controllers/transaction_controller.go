@@ -74,6 +74,7 @@ func BookingSeats(c *gin.Context) {
 	}
 	if seatStatus == 0 {
 		ErrorMessage(c, http.StatusConflict, "seats taken")
+		return
 	}
 
 	// buat transaksi jika belum ada
@@ -82,13 +83,13 @@ func BookingSeats(c *gin.Context) {
 	if isValid {
 		insertTransaction(db, user.ID)
 		// insert detail transaksi
-		insertDetailTransaction(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID, book_seat.Ms_ID, user.ID)
+		go insertDetailTransaction(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID, book_seat.Ms_ID, user.ID)
 
 		// Update status seat
-		updateSeatStatus(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID)
+		go updateSeatStatus(db, book_seat.Seat_ID, book_seat.Studio_ID, book_seat.Theater_ID)
 
 		// Update quantity
-		updateQuantity(db, book_seat.Theater_ID)
+		go updateQuantity(db, book_seat.Theater_ID)
 
 		// message sukses
 		SuccessMessage(c, http.StatusCreated, "Sukses")
@@ -97,7 +98,7 @@ func BookingSeats(c *gin.Context) {
 }
 
 func insertTransaction(db *sql.DB, id int) {
-	_, errQuery := db.Exec("INSERT INTO transactions (person_id, transaction_date) values (?, ?)", id, time.Now().Format("YYYY-MM-DD"))
+	_, errQuery := db.Exec("INSERT INTO transactions (person_id, transaction_date) values (?, ?)", id, time.Now().Format("2006-01-02"))
 	if errQuery != nil {
 		panic(errQuery)
 	}
