@@ -7,5 +7,5 @@ import (
 // Daily Func
 func Routine() {
 	go c.DeleteUserPeriodically()
-	// go c.DeleteMovieSchedulePeriodically()
+	go c.DeleteMovieSchedulePeriodically()
 }
